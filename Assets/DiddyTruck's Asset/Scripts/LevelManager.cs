@@ -19,11 +19,9 @@ public class LevelManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-
-            // Fetch transitions in Awake so they are ready immediately
             FetchTransitions();
         }
-        else
+        else if (Instance != this)
         {
             Destroy(gameObject);
         }
@@ -33,53 +31,48 @@ public class LevelManager : MonoBehaviour
     {
         if (transitionsContainer != null)
         {
-            // Include true to find inactive transitions too
             transitions = transitionsContainer.GetComponentsInChildren<SceneTransition>(true);
-        }
-        else
-        {
-            Debug.LogError("LevelManager: 'transitionsContainer' is not assigned in the Inspector!", this);
         }
     }
 
     public void LoadScene(string sceneName, string transitionName)
     {
-        StartCoroutine(LoadSceneAsync(sceneName, transitionName));
+        StartCoroutine(LoadSceneRoutine(sceneName, transitionName));
     }
 
-    private IEnumerator LoadSceneAsync(string sceneName, string transitionName)
+    private IEnumerator LoadSceneRoutine(string sceneName, string transitionName)
     {
-        // Safety Fallback if transitions wasn't populated
-        if (transitions == null || transitions.Length == 0)
-        {
-            FetchTransitions();
-        }
+        if (transitions == null || transitions.Length == 0) FetchTransitions();
 
         SceneTransition transition = transitions?.FirstOrDefault(t => t.name == transitionName);
 
         if (transition == null)
         {
-            Debug.LogError($"LevelManager: Transition '{transitionName}' could not be found!");
+            Debug.LogError($"[LevelManager] Could not find transition named: {transitionName}");
             yield break;
         }
 
-        AsyncOperation scene = SceneManager.LoadSceneAsync(sceneName);
-        scene.allowSceneActivation = false;
+        transition.gameObject.SetActive(true);
 
+        // 1. Play Transition In (e.g. Fade to Black)
         yield return transition.AnimateTransitionIn();
+
+        // 2. Start Async Load
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+        asyncLoad.allowSceneActivation = false;
 
         if (progressBar != null)
         {
             progressBar.gameObject.SetActive(true);
+            progressBar.value = 0f;
         }
 
-        // Scene progress stops at 0.9f while allowSceneActivation is false. 
-        // Divide by 0.9f to get a smooth 0.0 to 1.0 range for the progress bar.
-        while (scene.progress < 0.9f)
+        // 3. Track Load Progress
+        while (asyncLoad.progress < 0.9f)
         {
             if (progressBar != null)
             {
-                progressBar.value = Mathf.Clamp01(scene.progress / 0.9f);
+                progressBar.value = Mathf.Clamp01(asyncLoad.progress / 0.9f);
             }
             yield return null;
         }
@@ -87,17 +80,22 @@ public class LevelManager : MonoBehaviour
         if (progressBar != null)
         {
             progressBar.value = 1f;
-        }
-
-        yield return new WaitForSeconds(0.5f);
-
-        scene.allowSceneActivation = true;
-
-        if (progressBar != null)
-        {
+            yield return new WaitForSecondsRealtime(0.2f);
             progressBar.gameObject.SetActive(false);
         }
 
+        // 4. Activate New Scene
+        asyncLoad.allowSceneActivation = true;
+
+        // Wait until new scene is fully loaded into memory
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
+
+        // 5. Play Transition Out (e.g. Fade Clear)
         yield return transition.AnimateTransitionOut();
+
+        transition.gameObject.SetActive(false);
     }
 }

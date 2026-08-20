@@ -4,10 +4,10 @@ public class MainMenu : MonoBehaviour
 {
     public void Play()
     {
-        // Try finding Instance if null
+        // Unity 6 safe lookup
         if (LevelManager.Instance == null)
         {
-            LevelManager.Instance = FindFirstObjectByType<LevelManager>();
+            LevelManager.Instance = Object.FindAnyObjectByType<LevelManager>(FindObjectsInactive.Include);
         }
 
         if (LevelManager.Instance != null)
@@ -17,7 +17,7 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            Debug.LogError("MainMenu: No LevelManager found in the scene!");
+            Debug.LogError("[MainMenu] No LevelManager instance found in the active scene!");
         }
     }
 
