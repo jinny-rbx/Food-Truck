@@ -473,8 +473,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineFollow
   TrackerSettings:
-    BindingMode: 4
-    PositionDamping: {x: 2, y: 2, z: 2}
+    BindingMode: 1
+    PositionDamping: {x: 0.5, y: 1.5, z: 0.5}
     AngularDampingMode: 0
     RotationDamping: {x: 2, y: 2, z: 2}
     QuaternionDamping: 1
@@ -491,7 +491,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4afa82ae3200b82408d605c3dbdd1e38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineRotateWithFollowTarget
-  Damping: 0
+  Damping: 2
 --- !u!1001 &1387864117
 PrefabInstance:
   m_ObjectHideFlags: 0
