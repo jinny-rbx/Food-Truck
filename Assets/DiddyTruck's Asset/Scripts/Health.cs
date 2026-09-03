@@ -17,7 +17,7 @@ public class Health:MonoBehaviour
 
     private void Update()
     {
-        healthText.text = "Health: " + health + "%";
+        healthText.text = health + "%";
 
         lerpSpeed = 3f * Time.deltaTime;
 
