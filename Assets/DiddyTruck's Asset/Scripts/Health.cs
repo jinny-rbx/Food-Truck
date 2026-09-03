@@ -8,6 +8,7 @@ public class Health:MonoBehaviour
     public Image healthBar;
 
     float health, maxHealth = 100;
+    float lerpSpeed;
 
     private void Start()
     {
@@ -18,13 +19,21 @@ public class Health:MonoBehaviour
     {
         healthText.text = "Health: " + health + "%";
 
-        HealthBarFiller();
+        lerpSpeed = 3f * Time.deltaTime;
 
+        HealthBarFiller();
+        ColorChanger();
     }
 
     void HealthBarFiller()
     {
-        healthBar.fillAmount = health / maxHealth;
+        healthBar.fillAmount = Mathf.Lerp(healthBar.fillAmount, health / maxHealth, lerpSpeed);
+    }
+
+    void ColorChanger()
+    {
+        Color healthColor = Color.Lerp(Color.red, Color.green, (health / maxHealth));
+        healthBar.color = healthColor;
     }
 
     public void Damage(float damagePoints)
