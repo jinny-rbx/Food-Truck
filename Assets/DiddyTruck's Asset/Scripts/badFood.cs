@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerEvent : MonoBehaviour
+public class badFood : MonoBehaviour
 {
 
     private void OnTriggerEnter(Collider other)
@@ -9,9 +9,9 @@ public class PlayerEvent : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             print("touched");
-            Health playerHP = other.GetComponent<Health>();
+            Energy playerEnergy = other.GetComponent<Energy>();
 
-            playerHP.Damage(50);
+            playerEnergy.Damage(20);
             // Option 1: Completely destroy the object
             Destroy(gameObject);
         }
