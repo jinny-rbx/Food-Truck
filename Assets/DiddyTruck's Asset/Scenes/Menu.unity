@@ -2283,7 +2283,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: MENU
+  m_text: Truck
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: be7ca0477669246469e4ada4b4ba7aa8, type: 2}
   m_sharedMaterial: {fileID: -5782367958818075029, guid: be7ca0477669246469e4ada4b4ba7aa8, type: 2}
@@ -5041,7 +5041,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: This is a
+  m_text: diddy's
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: be7ca0477669246469e4ada4b4ba7aa8, type: 2}
   m_sharedMaterial: {fileID: -5782367958818075029, guid: be7ca0477669246469e4ada4b4ba7aa8, type: 2}
