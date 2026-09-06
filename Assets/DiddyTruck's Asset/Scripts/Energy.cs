@@ -7,6 +7,7 @@ public class Energy : MonoBehaviour
     public Image energyBar;
 
     float energy, maxEnergy = 100;
+    public float CurrentEnergy => energy;
     float lerpSpeed;
 
     private void Start()

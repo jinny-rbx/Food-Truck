@@ -10,7 +10,10 @@ public class badFood : MonoBehaviour
         {
             print("touched");
             Energy playerEnergy = other.GetComponent<Energy>();
-
+            if (CollectionMeter.Instance != null)
+            {
+                CollectionMeter.Instance.AddOrb(4);
+            }
             playerEnergy.Damage(20);
             // Option 1: Completely destroy the object
             Destroy(gameObject);

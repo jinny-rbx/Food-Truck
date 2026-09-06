@@ -11,7 +11,6 @@ public class Damage : MonoBehaviour
         {
             print("touched");
             Health playerHP = other.GetComponent<Health>();
-
             playerHP.Damage(damage);
             // Option 1: Completely destroy the object
             Destroy(gameObject);

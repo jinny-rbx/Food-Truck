@@ -21,6 +21,7 @@ public class Timer : MonoBehaviour
     // Events for game managers to listen to
     public event Action OnChallengeSuccess;
     public event Action OnChallengeFail;
+    public float CurrentTime => RemainingTime;
 
     private void Start()
     {

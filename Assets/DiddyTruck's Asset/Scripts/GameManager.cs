@@ -23,10 +23,24 @@ public class GameManager : MonoBehaviour
     [Header("Extraction Settings")]
     [SerializeField] private GameObject extractionZoneObject; // Drag your Exit Zone GameObject here
 
+    [Header("References")]
+    [SerializeField] private Energy playerEnergy; // Your energy script
+    [SerializeField] private CollectionMeter collectionMeter;
+
+    [Header("Star Requirements")]
+    [SerializeField] private float targetTimeLimit = 120f; // Must complete under 60 seconds
+    [SerializeField] private float maxEnergyLimit = 100f; // What counts as "Full" Energy
+    [SerializeField] private int maxOrbsLimit = 20;       // Full meter target
+
+    [Header("UI Star Visuals (Images or GameObjects)")]
+    [SerializeField] private GameObject star1Icon;
+    [SerializeField] private GameObject star2Icon;
+    [SerializeField] private GameObject star3Icon;
+
+
     [SerializeField] private GameObject UI;
     [SerializeField] private GameObject WinScreen;
     [SerializeField] private GameObject EndScreen;
-    [SerializeField] private Timer timer;
     [SerializeField] private Health hp;
     public bool AreObjectivesMet { get; private set; }
 
@@ -58,7 +72,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (hp.health <= 0 || timer.RemainingTime <= 0)
+        if (hp.health <= 0 || playerEnergy.CurrentEnergy <= 0)
         {
             End();
         }
@@ -135,8 +149,41 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("Challenge Completed! Player reached the extraction point.");
         OnLevelFinished?.Invoke();
-        // Add win screen or level transition logic here
+        EvaluateLevelCompletion();
         Win();
+    }
+
+    public void EvaluateLevelCompletion()
+    {
+        int totalStars = 0;
+
+        // Condition 1: Full Energy
+        if (playerEnergy != null && playerEnergy.CurrentEnergy >= maxEnergyLimit)
+        {
+            totalStars++;
+            Debug.Log("Star 1 Earned: Full Energy!");
+        }
+
+        // Condition 2: Full Collection Meter
+        if (collectionMeter != null && collectionMeter.CurrentOrbs >= maxOrbsLimit)
+        {
+            totalStars++;
+            Debug.Log("Star 2 Earned: Meter Full!");
+        }
+
+        totalStars++;
+        Debug.Log("Star 3 Earned: Touched Extraction Zone!");
+
+        // Display results
+        DisplayStarsUI(totalStars);
+    }
+
+    private void DisplayStarsUI(int starCount)
+    {
+        // Enable icons based on total earned stars
+        if (star1Icon != null) star1Icon.SetActive(starCount >= 1);
+        if (star2Icon != null) star2Icon.SetActive(starCount >= 2);
+        if (star3Icon != null) star3Icon.SetActive(starCount >= 3);
     }
 
     public void End()
