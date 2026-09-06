@@ -27,8 +27,8 @@ MonoBehaviour:
     characterSprite: {fileID: 21300000, guid: b9d57320982503a41bba7639796bd65b, type: 3}
     speechSFXBlips:
     - {fileID: 8300000, guid: 6859d58be09970142880a7ca11d86e6c, type: 3}
-  - characterName: Raph
-    characterID: character_raph
+  - characterName: Diddy
+    characterID: character_diddy
     characterDescription: Pizza.
     characterColor: {r: 0.8078432, g: 0.18823531, b: 0.20000002, a: 1}
     characterSprite: {fileID: 21300000, guid: f6dcb4b7f0ade5a49a40bac8ddbf4a0e, type: 3}

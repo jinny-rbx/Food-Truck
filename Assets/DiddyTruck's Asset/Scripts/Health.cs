@@ -1,14 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using Unity.VisualScripting;
 
 public class Health:MonoBehaviour
 {
     [SerializeField] private GameObject UI;
     [SerializeField] private GameObject End;
+    [SerializeField] private Timer timer;
 
-
-    public TMP_Text healthText;
     public Image healthBar;
 
     float health, maxHealth = 100;
@@ -24,14 +25,12 @@ public class Health:MonoBehaviour
 
     private void Update()
     {
-        if (health <= 0)
+        if (health <= 0 || timer.RemainingTime <= 0)
         {
             UI.SetActive(false);
             End.SetActive(true);
             Time.timeScale = 0f;
         }
-
-        healthText.text = health + "%";
 
         lerpSpeed = 3f * Time.deltaTime;
 
