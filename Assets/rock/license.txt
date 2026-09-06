@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low Poly Rock Set
+* source:	https://sketchfab.com/3d-models/low-poly-rock-set-48f8612d1db1429d976f8d4f08ed0f0c
+* author:	louis-muir (https://sketchfab.com/louir-muir)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low Poly Rock Set" (https://sketchfab.com/3d-models/low-poly-rock-set-48f8612d1db1429d976f8d4f08ed0f0c) by louis-muir (https://sketchfab.com/louir-muir) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
