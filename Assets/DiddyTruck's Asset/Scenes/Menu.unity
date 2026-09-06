@@ -157,7 +157,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 176.4181}
-  m_SizeDelta: {x: 129.0694, y: 43.2583}
+  m_SizeDelta: {x: 130, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &17160096
 MonoBehaviour:
@@ -444,6 +444,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 87729329}
+  - component: {fileID: 87729330}
   m_Layer: 5
   m_Name: MainMenu
   m_TagString: Untagged
@@ -473,6 +474,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -224.17075}
   m_SizeDelta: {x: 502.5244, y: 502.5244}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &87729330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87729328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85eed2ddc93b38745a918864a2ae6ede, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &98938062
 GameObject:
   m_ObjectHideFlags: 0
@@ -769,7 +782,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
@@ -1719,7 +1732,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
@@ -2597,7 +2610,7 @@ GameObject:
   - component: {fileID: 1077356984}
   - component: {fileID: 1077356985}
   m_Layer: 5
-  m_Name: Settings
+  m_Name: Setting
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2621,7 +2634,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 4.153881, y: 74.148674}
-  m_SizeDelta: {x: 242.3027, y: 41.7684}
+  m_SizeDelta: {x: 245, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1077356982
 MonoBehaviour:
@@ -2987,7 +3000,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -30.741768}
-  m_SizeDelta: {x: 119.1367, y: 46.7348}
+  m_SizeDelta: {x: 120, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1225017812
 MonoBehaviour:
