@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class EndScreen : MonoBehaviour
 {
-    public void Next()
+    public void Restart()
     {
         Time.timeScale = 1f;
 

@@ -1,7 +1,13 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MainMenu : MonoBehaviour
 {
+
+    public void Start()
+    {
+        Time.timeScale = 1f;
+    }
     public void Play()
     {
         // Unity 6 safe lookup
