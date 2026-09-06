@@ -6,8 +6,8 @@ public class WinScreen : MonoBehaviour
     public void Next()
     {
         Time.timeScale = 1f;
-
-        SceneManager.LoadScene("Game 2");
+        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+        SceneManager.LoadScene(nextSceneIndex);
     }
     public void Back()
     {
