@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/DiddyTruck's Asset/Scenes/Game.unity
     guid: 21ba037d389f8b540b6f436a4c06be62
   - enabled: 1
+    path: Assets/DiddyTruck's Asset/Scenes/forestMap.unity
+    guid: 19347ddaa9661244e8e40377314cc90c
+  - enabled: 1
     path: Assets/DiddyTruck's Asset/Scenes/Game 2.unity
     guid: 294312865871de64baf683da22610fc1
   m_configObjects:
