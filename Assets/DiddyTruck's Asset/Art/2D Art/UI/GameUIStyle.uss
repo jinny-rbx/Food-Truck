@@ -1,0 +1,12 @@
+:root {
+}
+
+.healthbar-size {
+    width: 650px;
+}
+
+.unity-text-element {
+}
+
+.unity-button {
+}

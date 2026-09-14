@@ -1,12 +1,22 @@
+using System;
 using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class PlayerControl : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
     public float turnSpeed = 90f;        // Rotation speed in degrees per second
     public float gravity = -9.81f;
+
+    [Header("Stats")]
+    public float currentHealth;
+    public float maxHealth = 100;
+
+
+    public Action OnHealthChange;
 
     private CharacterController controller;
     private Animator animator;
@@ -16,6 +26,8 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        currentHealth = maxHealth;
+
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
 
@@ -56,4 +68,13 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("Speed", moveInput);
         }
     }
+
+    public void HealthManager(float damagePoints)
+    {
+        if (currentHealth > 0 && currentHealth <= maxHealth)
+            currentHealth += damagePoints;
+            OnHealthChange?.Invoke();
+    }
+
+
 }

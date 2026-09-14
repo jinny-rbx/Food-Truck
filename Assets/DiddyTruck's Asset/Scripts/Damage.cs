@@ -10,8 +10,8 @@ public class Damage : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             print("touched");
-            Health playerHP = other.GetComponent<Health>();
-            playerHP.Damage(damage);
+            PlayerControl playerHP = other.GetComponent<PlayerControl>();
+            playerHP.HealthManager(-damage);
             // Option 1: Completely destroy the object
             Destroy(gameObject);
         }

@@ -24,11 +24,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject extractionZoneObject; // Drag your Exit Zone GameObject here
 
     [Header("References")]
+    [SerializeField] private PlayerControl player;
     [SerializeField] private Energy playerEnergy; // Your energy script
     [SerializeField] private CollectionMeter collectionMeter;
 
     [Header("Star Requirements")]
-    [SerializeField] private float targetTimeLimit = 120f; // Must complete under 60 seconds
     [SerializeField] private float maxEnergyLimit = 100f; // What counts as "Full" Energy
     [SerializeField] private int maxOrbsLimit = 20;       // Full meter target
 
@@ -41,7 +41,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject UI;
     [SerializeField] private GameObject WinScreen;
     [SerializeField] private GameObject EndScreen;
-    [SerializeField] private Health hp;
+
     public bool AreObjectivesMet { get; private set; }
 
     // Events
@@ -72,7 +72,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (hp.health <= 0 || playerEnergy.CurrentEnergy <= 0)
+        if (player.currentHealth <= 0 || playerEnergy.CurrentEnergy <= 0)
         {
             End();
         }
