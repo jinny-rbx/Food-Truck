@@ -8,14 +8,16 @@ public class GameUIHandler : MonoBehaviour
 
     private Label m_HealthLabel;
     private VisualElement m_HealthBarMask;
+    private VisualElement m_SatisfyBarMask;
 
     private void Start()
     {
         PlayerControl.OnHealthChange += HealthChanged;
         m_HealthLabel = UIDoc.rootVisualElement.Q<Label>("HealthLabel");
         m_HealthBarMask = UIDoc.rootVisualElement.Q<VisualElement>("HealthBarMask");
-
+        m_SatisfyBarMask = UIDoc.rootVisualElement.Q<VisualElement>("SatisfyBarMask");
         HealthChanged();
+        SatisfactionChanged();
     }
 
 
@@ -25,5 +27,12 @@ public class GameUIHandler : MonoBehaviour
         float healthPercent = Mathf.Lerp(8, 88, healthRatio);
         m_HealthBarMask.style.width = Length.Percent(healthPercent);
         m_HealthLabel.text = $"{PlayerControl.currentHealth}/{PlayerControl.maxHealth}";
+    }
+
+    void SatisfactionChanged()
+    {
+        float satisfyRatio = (float)PlayerControl.currentSatisfy / PlayerControl.maxSatisfy;
+        float satisfyPercent = Mathf.Lerp(8, 100, satisfyRatio);
+        m_SatisfyBarMask.style.width = Length.Percent(satisfyPercent);
     }
 }

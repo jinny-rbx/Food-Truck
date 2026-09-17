@@ -14,9 +14,13 @@ public class PlayerControl : MonoBehaviour
     [Header("Stats")]
     public float currentHealth;
     public float maxHealth = 100;
+    public float currentSatisfy;
+    public float maxSatisfy;
+
 
 
     public Action OnHealthChange;
+    public Action OnSatisfyChange;
 
     private CharacterController controller;
     private Animator animator;
@@ -72,9 +76,19 @@ public class PlayerControl : MonoBehaviour
     public void HealthManager(float damagePoints)
     {
         if (currentHealth > 0 && currentHealth <= maxHealth)
+        {
             currentHealth += damagePoints;
             OnHealthChange?.Invoke();
+        }
     }
 
+    public void SatisfactionManager(float Points)
+    {
+        if (currentSatisfy > 0 && currentSatisfy <= maxSatisfy)
+        {
+            currentSatisfy += Points;
+            OnSatisfyChange?.Invoke();
+        }
+    }
 
 }
