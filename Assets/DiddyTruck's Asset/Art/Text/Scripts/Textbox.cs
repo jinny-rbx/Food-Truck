@@ -12,21 +12,21 @@ public class Textbox : MonoBehaviour
 {
     [Header("Textbox Settings")]
     [SerializeField] private bool usesCharacterInfo;
-    
+
     [Header("Textbox References")]
     //Text
     [SerializeField] private TMP_Text dialogueText;
     [HideInInspector] public string dialogue;
-    
+
     //Character Name
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private Image nameTextImage;
 
     //Character Sprite
-    [SerializeField] private Image characterSpriteBackground; 
-    [SerializeField] private Image characterSpriteImage; 
-    
-    private CharacterProfile myCharater;
+    [SerializeField] private Image characterSpriteBackground;
+    [SerializeField] private Image characterSpriteImage;
+
+    private CharacterProfile myCharacter;
 
     [Header("Audio Settings")]
     [SerializeField][Tooltip("Audio blips are AudioClips that play as each letter is typed out in the dialogue box.")] private bool useAudioBlips;
@@ -36,88 +36,218 @@ public class Textbox : MonoBehaviour
     [Header("Text Animation Settings")]
     [SerializeField] private TextAnimations textAnimations;
 
+    // Skip/Typing state
+    public bool IsTyping { get; private set; }
+    private Coroutine typingCoroutine;
 
-    public void InitializeTextbox(string dialogue) {
+    public void InitializeTextbox(string dialogue)
+    {
         audioSource = GetComponent<AudioSource>();
         this.dialogue = dialogue;
 
-        if (nameText != null) {
+        if (nameText != null)
+        {
             nameText.text = "";
         }
-        if (nameTextImage != null) {
+        if (nameTextImage != null)
+        {
             nameTextImage.enabled = false;
         }
-        if (characterSpriteBackground != null) {
+        if (characterSpriteBackground != null)
+        {
             characterSpriteBackground.gameObject.SetActive(false);
         }
     }
 
-    public void InitializeTextbox(string dialogue, CharacterProfile myCharacter) {
+    public void InitializeTextbox(string dialogue, CharacterProfile myCharacter)
+    {
         audioSource = GetComponent<AudioSource>();
-        this.myCharater = myCharacter;
-        
+        this.myCharacter = myCharacter;
+
         this.dialogue = dialogue;
 
-        if (usesCharacterInfo) {
-            if (nameText != null) {
-                nameText.text = this.myCharater.characterName;
+        if (usesCharacterInfo)
+        {
+            if (nameText != null)
+            {
+                nameText.text = this.myCharacter.characterName;
             }
 
-            if (nameTextImage != null) {
+            if (nameTextImage != null)
+            {
                 nameTextImage.enabled = true;
-                nameTextImage.color = this.myCharater.characterColor;
+                nameTextImage.color = this.myCharacter.characterColor;
             }
 
-            if (characterSpriteBackground != null) {
+            if (characterSpriteBackground != null)
+            {
                 characterSpriteBackground.gameObject.SetActive(true);
-                characterSpriteBackground.color = this.myCharater.characterColor;
+                characterSpriteBackground.color = this.myCharacter.characterColor;
             }
 
-            if (characterSpriteImage != null) {
-                characterSpriteImage.sprite = this.myCharater.characterSprite;
+            if (characterSpriteImage != null)
+            {
+                characterSpriteImage.sprite = this.myCharacter.characterSprite;
             }
 
-        } else {
-            //Check null here for each component. If user is not using character info and has removed references then we will get a null
-            //ref error otherwise.
-            if (nameText != null) {
+        }
+        else
+        {
+            if (nameText != null)
+            {
                 nameText.text = "";
             }
-            if (nameTextImage != null) {
+            if (nameTextImage != null)
+            {
                 nameTextImage.enabled = false;
             }
-            if (characterSpriteBackground != null) {
+            if (characterSpriteBackground != null)
+            {
                 characterSpriteBackground.gameObject.SetActive(false);
             }
         }
-        
-        
     }
 
-    public void DisplayText() {
-        dialogueText.text = dialogue;
+    public void DisplayText()
+    {
+        SetupTextAnimations();
+
+        if (DialogueController.instance != null)
+        {
+            dialogueText.text = DialogueController.instance.ParseDialogueCustomStyle(dialogue, true);
+        }
+        else
+        {
+            dialogueText.text = dialogue;
+        }
+
+        IsTyping = false;
     }
 
-    public void DisplayText(float typeSpeed) {
+    public void DisplayText(float typeSpeed)
+    {
         dialogueText.text = "";
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+        }
+        typingCoroutine = StartCoroutine(OneLetterAtAtime(typeSpeed));
+    }
+    public void CompleteTextInstantly()
+    {
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+            typingCoroutine = null;
+        }
 
-        StartCoroutine(OneLetterAtAtime(typeSpeed));
-        
+        // Set up animation parameters and return the clean text stripped of <animate> tags
+        string cleanText = SetupTextAnimations();
+
+        // Display the cleaned text so raw <animate=...> tags never appear
+        dialogueText.text = cleanText;
+
+        IsTyping = false;
     }
 
-    private IEnumerator OneLetterAtAtime(float typeSpeed) {
-        //Regex patterns for detecting RichText tags in our string
-        string styleTextPattern = @">[^<]+</"; //Regex pattern to find '> SOMETHING <' 
-        string openTagPattern = @"(<[^>/]+>)+"; //Pattern to find <x><y><z>
-        string closeTagPattern = @"(</[^>]+>)+"; //Pattern to fid </x></y></z>
+    private string SetupTextAnimations()
+    {
+        if (textAnimations == null) return dialogue;
+
+        textAnimations.ClearAnimations();
+
+        string styleTextPattern = @">[^<]+</";
+        string openTagPattern = @"(<[^>/]+>)+";
+        string closeTagPattern = @"(</[^>]+>)+";
 
         string cleanDialogue = dialogue;
 
-        //Get our substrings that are styled
         List<StyleTextChunk> styleTextChunks = new List<StyleTextChunk>();
-        int indexOffset = 0; //This is used to compensate for loss of data when removing <animate> tags
+        int indexOffset = 0;
         var regexMatches = Regex.Matches(dialogue, styleTextPattern);
-        for (int i = 0; i < regexMatches.Count; i++) {
+
+        for (int i = 0; i < regexMatches.Count; i++)
+        {
+            StyleTextChunk styleChunk = new StyleTextChunk();
+            styleChunk.styledText = regexMatches[i].ToString().Replace(">", "").Replace("</", "");
+            styleChunk.openTagString = Regex.Matches(dialogue, openTagPattern)[i].ToString();
+            styleChunk.closeTagString = Regex.Matches(dialogue, closeTagPattern)[i].ToString();
+
+            if (styleChunk.openTagString.Contains("<animate"))
+            {
+                int animateTagStartIndex = styleChunk.openTagString.IndexOf("<animate");
+                int animateTagEndIndex = 0;
+                for (int x = animateTagStartIndex; x < styleChunk.openTagString.Length; x++)
+                {
+                    if (styleChunk.openTagString[x] == '>')
+                    {
+                        animateTagEndIndex = x;
+                        break;
+                    }
+                }
+
+                string animateTagString = styleChunk.openTagString.Substring(animateTagStartIndex, animateTagEndIndex - animateTagStartIndex + 1);
+                styleChunk.usesAnimations = true;
+                styleChunk.animationTags = animateTagString;
+            }
+            else
+            {
+                styleChunk.usesAnimations = false;
+            }
+
+            styleChunk.styledTextStartIndex = regexMatches[i].Index - styleChunk.openTagString.Length + 1 - indexOffset;
+
+            // Strip <animate> and </animate> tags out of the rendered dialogue string
+            if (styleChunk.usesAnimations)
+            {
+                cleanDialogue = cleanDialogue.Replace(styleChunk.animationTags, "");
+                cleanDialogue = cleanDialogue.Replace("</animate>", "");
+
+                if (i > 0)
+                {
+                    int removeAmount = 0;
+                    for (int x = i; x > 0; x--)
+                    {
+                        removeAmount += styleTextChunks[x - 1].GetLength() - styleTextChunks[x - 1].styledText.Length;
+                    }
+                    styleChunk.animationStartIndex = styleChunk.styledTextStartIndex - removeAmount;
+                    styleChunk.animationEndIndex = styleChunk.animationStartIndex + styleChunk.styledText.Length;
+                }
+                else
+                {
+                    styleChunk.animationStartIndex = styleChunk.styledTextStartIndex;
+                    styleChunk.animationEndIndex = styleChunk.animationStartIndex + styleChunk.styledText.Length;
+                }
+            }
+
+            indexOffset = styleChunk.usesAnimations ? indexOffset + (styleChunk.animationTags.Length + "</animate>".Length) : indexOffset;
+            styleTextChunks.Add(styleChunk);
+        }
+
+        foreach (StyleTextChunk chunk in styleTextChunks.Where(txt => txt.usesAnimations))
+        {
+            TextAnimationInfo animationSettings = new TextAnimationInfo(chunk.animationStartIndex, chunk.animationEndIndex, chunk.animationTags.Replace("<animate=", "").Replace(">", ""));
+            textAnimations.AddAnimationInfo(animationSettings);
+        }
+
+        return cleanDialogue;
+    }
+
+    private IEnumerator OneLetterAtAtime(float typeSpeed)
+    {
+        IsTyping = true;
+
+        string styleTextPattern = @">[^<]+</";
+        string openTagPattern = @"(<[^>/]+>)+";
+        string closeTagPattern = @"(</[^>]+>)+";
+
+        string cleanDialogue = dialogue;
+
+        List<StyleTextChunk> styleTextChunks = new List<StyleTextChunk>();
+        int indexOffset = 0;
+        var regexMatches = Regex.Matches(dialogue, styleTextPattern);
+        for (int i = 0; i < regexMatches.Count; i++)
+        {
 
             StyleTextChunk styleChunk = new StyleTextChunk();
 
@@ -125,62 +255,65 @@ public class Textbox : MonoBehaviour
             styleChunk.openTagString = Regex.Matches(dialogue, openTagPattern)[i].ToString();
             styleChunk.closeTagString = Regex.Matches(dialogue, closeTagPattern)[i].ToString();
 
-            //If we find animate tags in the chunk, then we need to store it and remove from open/close tags
-            if (styleChunk.openTagString.Contains("<animate")) {
+            if (styleChunk.openTagString.Contains("<animate"))
+            {
                 int animateTagStartIndex = styleChunk.openTagString.IndexOf("<animate");
                 int animateTagEndIndex = 0;
-                for (int x = animateTagStartIndex; x < styleChunk.openTagString.Length; x++) {
-                    if (styleChunk.openTagString[x] == '>') {
+                for (int x = animateTagStartIndex; x < styleChunk.openTagString.Length; x++)
+                {
+                    if (styleChunk.openTagString[x] == '>')
+                    {
                         animateTagEndIndex = x;
                         break;
                     }
                 }
-                
+
                 string animateTagString = styleChunk.openTagString.Substring(animateTagStartIndex, animateTagEndIndex - animateTagStartIndex + 1);
                 styleChunk.usesAnimations = true;
                 styleChunk.animationTags = animateTagString;
 
-
-            } else {
+            }
+            else
+            {
                 styleChunk.usesAnimations = false;
             }
-            
-            styleChunk.styledTextStartIndex = regexMatches[i].Index - styleChunk.openTagString.Length + 1 - indexOffset; //Uses offset to compensate for when animate tags are removed
-           
-            //Remove open and close tags from our clean dialogue
+
+            styleChunk.styledTextStartIndex = regexMatches[i].Index - styleChunk.openTagString.Length + 1 - indexOffset;
+
             cleanDialogue = cleanDialogue.Replace(styleChunk.openTagString, "");
             cleanDialogue = cleanDialogue.Replace(styleChunk.closeTagString, "");
 
-            //If we used animations in this chunk, then we need to remove them from the open/close tags manually
-            if (styleChunk.usesAnimations) {
+            if (styleChunk.usesAnimations)
+            {
                 styleChunk.openTagString = styleChunk.openTagString.Replace(styleChunk.animationTags, "");
                 styleChunk.closeTagString = styleChunk.closeTagString.Replace("</animate>", "");
 
-                if (i > 0) {
+                if (i > 0)
+                {
                     int removeAmount = 0;
-                    for (int x = i; x > 0; x--) {
+                    for (int x = i; x > 0; x--)
+                    {
                         removeAmount += styleTextChunks[x - 1].GetLength() - styleTextChunks[x - 1].styledText.Length;
                     }
                     styleChunk.animationStartIndex = styleChunk.styledTextStartIndex - removeAmount;
                     styleChunk.animationEndIndex = styleChunk.animationStartIndex + styleChunk.styledText.Length;
-                } else {
+                }
+                else
+                {
                     styleChunk.animationStartIndex = styleChunk.styledTextStartIndex;
                     styleChunk.animationEndIndex = styleChunk.animationStartIndex + styleChunk.styledText.Length;
                 }
-                
-                
             }
-            
-            //Reset our offset if needed
+
             indexOffset = styleChunk.usesAnimations ? indexOffset + (styleChunk.animationTags.Length + "</animate>".Length) : indexOffset;
-            
             styleTextChunks.Add(styleChunk);
         }
 
-        if (textAnimations != null) {
-            foreach (StyleTextChunk chunk in styleTextChunks.Where(txt => txt.usesAnimations)) {
-                // Debug.Log(chunk.animationTags);
-                TextAnimationInfo animationSettings = new TextAnimationInfo(chunk.animationStartIndex, chunk.animationEndIndex, chunk.animationTags.Replace("<animate=", "").Replace(">", "")); 
+        if (textAnimations != null)
+        {
+            foreach (StyleTextChunk chunk in styleTextChunks.Where(txt => txt.usesAnimations))
+            {
+                TextAnimationInfo animationSettings = new TextAnimationInfo(chunk.animationStartIndex, chunk.animationEndIndex, chunk.animationTags.Replace("<animate=", "").Replace(">", ""));
                 textAnimations.AddAnimationInfo(animationSettings);
             }
         }
@@ -188,69 +321,84 @@ public class Textbox : MonoBehaviour
         int workingIndex = 0;
         string displayText = "";
         int styleChunkIndex = 0;
-        
-        
-        foreach (char letter in cleanDialogue) {
-            if (styleTextChunks.Count > 0) {
+
+        foreach (char letter in cleanDialogue)
+        {
+            if (styleTextChunks.Count > 0)
+            {
                 StyleTextChunk currentStyleChunk = styleTextChunks[styleChunkIndex];
 
-                if (workingIndex < currentStyleChunk.styledTextStartIndex) { 
-                    // Debug.Log("Normal Letter: " + letter);
+                if (workingIndex < currentStyleChunk.styledTextStartIndex)
+                {
                     displayText += letter;
-                }else if (workingIndex == currentStyleChunk.styledTextStartIndex) {
-                    // Debug.Log("Starting Tags: " + letter);
+                }
+                else if (workingIndex == currentStyleChunk.styledTextStartIndex)
+                {
                     displayText += currentStyleChunk.openTagString;
                     displayText += letter;
-                    workingIndex = displayText.Length-1;
+                    workingIndex = displayText.Length - 1;
                     displayText += currentStyleChunk.closeTagString;
-                }else if (workingIndex > currentStyleChunk.styledTextStartIndex && workingIndex < currentStyleChunk.styledTextStartIndex + currentStyleChunk.styledText.Length + currentStyleChunk.openTagString.Length) {
-                    // Debug.Log("Inside Tags: " + letter);
+                }
+                else if (workingIndex > currentStyleChunk.styledTextStartIndex && workingIndex < currentStyleChunk.styledTextStartIndex + currentStyleChunk.styledText.Length + currentStyleChunk.openTagString.Length)
+                {
                     displayText = displayText.Insert(workingIndex, letter.ToString());
                 }
 
-                if (workingIndex >= currentStyleChunk.styledTextStartIndex + currentStyleChunk.styledText.Length + currentStyleChunk.openTagString.Length) {
-                    // Debug.Log("Exiting Style: " + letter);
-                    workingIndex = displayText.Length ;
+                if (workingIndex >= currentStyleChunk.styledTextStartIndex + currentStyleChunk.styledText.Length + currentStyleChunk.openTagString.Length)
+                {
+                    workingIndex = displayText.Length;
                     styleChunkIndex++;
-                    if (styleChunkIndex >= styleTextChunks.Count - 1) {
+                    if (styleChunkIndex >= styleTextChunks.Count - 1)
+                    {
                         styleChunkIndex = styleTextChunks.Count - 1;
                     }
                     displayText += letter;
                 }
-                
-            } else {
+
+            }
+            else
+            {
                 displayText += letter;
             }
-            
-            
+
             workingIndex++;
 
             dialogueText.text = displayText;
 
-
-            if (useAudioBlips) {
-                if (myCharater != null) {
-                    if (myCharater.speechSFXBlips.Length > 0) {
-                        audioSource.clip = myCharater.speechSFXBlips[Random.Range(0, myCharater.speechSFXBlips.Length)];
-                    } else {
+            if (useAudioBlips)
+            {
+                if (myCharacter != null)
+                {
+                    if (myCharacter.speechSFXBlips != null && myCharacter.speechSFXBlips.Length > 0)
+                    {
+                        audioSource.clip = myCharacter.speechSFXBlips[Random.Range(0, myCharacter.speechSFXBlips.Length)];
+                    }
+                    else if (defaultClips.Length > 0)
+                    {
                         audioSource.clip = defaultClips[Random.Range(0, defaultClips.Length)];
                     }
-                } else {
-                    if (defaultClips.Length > 0) {
+                }
+                else
+                {
+                    if (defaultClips.Length > 0)
+                    {
                         audioSource.clip = defaultClips[Random.Range(0, defaultClips.Length)];
                     }
                 }
 
-                audioSource.Play();
+                if (audioSource.clip != null) audioSource.Play();
             }
 
-            if (typeSpeed != 0) {
+            if (typeSpeed != 0)
+            {
                 yield return new WaitForSeconds(typeSpeed);
             }
-            
         }
+
+        IsTyping = false;
+        typingCoroutine = null;
     }
-    
+
     struct StyleTextChunk
     {
         public string openTagString;
@@ -264,26 +412,22 @@ public class Textbox : MonoBehaviour
         public int animationEndIndex;
         public string animationTags;
 
-        public int GetLength() {
+        public int GetLength()
+        {
             return openTagString.Length + styledText.Length + closeTagString.Length;
         }
-        
-        public void PrintInfo() {
+
+        public void PrintInfo()
+        {
             Debug.Log("New Style Chunk: \n" +
                       "Index: " +
                       styledTextStartIndex +
                       "\n" +
                       "String: " +
                       styledText +
-                      "\n"+
-                      "Uses Animations" + usesAnimations + "\n"
+                      "\n" +
+                      "Uses Animations: " + usesAnimations + "\n"
                       + "Animation Tags: " + animationTags);
-            // "Open Tag: " +
-            // openTagString +
-            // "\n" +
-            // "Close Tag: " +
-            // closeTagString);
         }
     }
-
 }

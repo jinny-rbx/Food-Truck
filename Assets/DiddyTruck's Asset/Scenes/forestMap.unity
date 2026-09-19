@@ -579,7 +579,7 @@ PrefabInstance:
     - target: {fileID: 1958791603617423174, guid: 8b9ad8c0de96f99448237d47b585a61d, type: 3}
       propertyPath: energyBar
       value: 
-      objectReference: {fileID: 1730483938}
+      objectReference: {fileID: 0}
     - target: {fileID: 3723208380611643788, guid: 8b9ad8c0de96f99448237d47b585a61d, type: 3}
       propertyPath: FollowOffset.y
       value: 8.14
@@ -591,7 +591,7 @@ PrefabInstance:
     - target: {fileID: 5090356183260006968, guid: 8b9ad8c0de96f99448237d47b585a61d, type: 3}
       propertyPath: healthBar
       value: 
-      objectReference: {fileID: 1730483940}
+      objectReference: {fileID: 0}
     - target: {fileID: 7181885757185981085, guid: 8b9ad8c0de96f99448237d47b585a61d, type: 3}
       propertyPath: m_Name
       value: Player
@@ -1198,17 +1198,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5b40c465810ae6d42ad8d693da92d5c6, type: 3}
---- !u!114 &1730483938 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 65084566515906416, guid: 5b40c465810ae6d42ad8d693da92d5c6, type: 3}
-  m_PrefabInstance: {fileID: 1730483937}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!114 &1730483939 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4416134806888247441, guid: 5b40c465810ae6d42ad8d693da92d5c6, type: 3}
@@ -1220,33 +1209,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
---- !u!114 &1730483940 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7557887127465993405, guid: 5b40c465810ae6d42ad8d693da92d5c6, type: 3}
-  m_PrefabInstance: {fileID: 1730483937}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1 &1730483941 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6377409442999338729, guid: 5b40c465810ae6d42ad8d693da92d5c6, type: 3}
   m_PrefabInstance: {fileID: 1730483937}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1730483942 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 499014687559406785, guid: 5b40c465810ae6d42ad8d693da92d5c6, type: 3}
-  m_PrefabInstance: {fileID: 1730483937}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1730483941}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b52adf9c91b11e242b9e1d26b5733781, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CollectionMeter
 --- !u!1001 &1743611936
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1481,22 +1448,30 @@ PrefabInstance:
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: collectionMeter
       value: 
-      objectReference: {fileID: 1730483942}
+      objectReference: {fileID: 0}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: extractionZoneObject
       value: 
       objectReference: {fileID: 1872943623}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.data[0].materialID
-      value: Food
+      value: Carrot
+      objectReference: {fileID: 0}
+    - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
+      propertyPath: requiredMaterials.Array.data[1].materialID
+      value: Tomato
       objectReference: {fileID: 0}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.data[0].requiredAmount
-      value: 5
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
+      propertyPath: requiredMaterials.Array.data[1].requiredAmount
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1523,11 +1498,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54bce19e461ed42489493249f78c8dbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RandomSpawner
-  spawnPrefabs:
-  - {fileID: 1477919034099479307, guid: 97c2cfde735d5e54a8facfa5572a7fbf, type: 3}
-  - {fileID: 621976340006651416, guid: 355d3dbeffb11b441a60f96ae4f6bff9, type: 3}
-  - {fileID: 1586852015377533035, guid: 0d6d2264239569444a51cb18d0ccf7c8, type: 3}
-  - {fileID: 1469955320637191709, guid: b8ae8fac9fd0ab344a010c64178dbd57, type: 3}
+  spawnGroups:
+  - groupName: goodFood
+    variations:
+    - {fileID: 2432254926751296996, guid: 768108f993ccb2d48b8f1dbd5f8d3e6e, type: 3}
+    - {fileID: 5994389528151780988, guid: e292694133d465b47a69847ec5daad42, type: 3}
+    - {fileID: 8995432898339236328, guid: 92a726d6da506674891e9327f29242ec, type: 3}
+    - {fileID: 1648475616863822032, guid: 96df64471ed0d5d4eba1ee4590d336df, type: 3}
+    - {fileID: 6245953384453481639, guid: 185eb9d88273f3040b158e4dd12bf21c, type: 3}
+  - groupName: badFood
+    variations:
+    - {fileID: 1477919034099479307, guid: 97c2cfde735d5e54a8facfa5572a7fbf, type: 3}
+  - groupName: Trap
+    variations:
+    - {fileID: 1586852015377533035, guid: 0d6d2264239569444a51cb18d0ccf7c8, type: 3}
   spawnAmount: 100
   centerOffset: {x: 211.67, y: 0.5, z: 0}
   spawnAreaSize: {x: 830.2, y: 0, z: 815.1}
