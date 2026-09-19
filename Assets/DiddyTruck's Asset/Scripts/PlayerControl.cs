@@ -21,8 +21,6 @@ public class PlayerControl : MonoBehaviour
     public Action OnSatisfyChange;
     public Action OnEnergyChange;
 
-
-
     private GameManager game;
     private CharacterController controller;
     private Animator animator;
@@ -32,9 +30,7 @@ public class PlayerControl : MonoBehaviour
 
     void Start()
     {
-        // Fix: Connect to the Singleton Instance
         game = GameManager.Instance;
-
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
 
@@ -49,29 +45,41 @@ public class PlayerControl : MonoBehaviour
             Debug.LogError("GameManager Instance is missing in the scene!");
         }
 
-        // Save initial Y rotation
         startYRotation = transform.eulerAngles.y;
     }
 
     void Update()
     {
-        // 1. Get input: W/S for Vertical (Move), A/D for Horizontal (Turn)
+        // 1. Check Dialogue Lock
+        if (DialogueController.instance != null && DialogueController.instance.IsDialogueActive)
+        {
+            if (!DialogueController.instance.IsWaitingForMovementInput)
+            {
+                // Reset animator speed to idle when frozen
+                if (animator != null)
+                {
+                    animator.SetFloat("Speed", 0f);
+                }
+                return; // Lock movement
+            }
+        }
+
+        // 2. Input detection
         float turnInput = Input.GetAxis("Horizontal"); // A (-1) and D (+1)
         float moveInput = Input.GetAxis("Vertical");   // S (-1) and W (+1)
 
-        // 2. Rotate character with A/D (Clamped relative to start)
+        // 3. Turn Character
         if (Mathf.Abs(turnInput) > 0.01f)
         {
             currentRelativeAngle += turnInput * turnSpeed * Time.deltaTime;
-
             transform.rotation = Quaternion.Euler(0f, startYRotation + currentRelativeAngle, 0f);
         }
 
-        // 3. Move Forward / Backward with W/S relative to facing direction
+        // 4. Move Forward / Backward
         Vector3 moveDirection = transform.forward * moveInput;
         controller.Move(moveDirection * moveSpeed * Time.deltaTime);
 
-        // 4. Apply Gravity
+        // 5. Apply Gravity
         if (controller.isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
@@ -80,7 +88,7 @@ public class PlayerControl : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
 
-        // 5. Update Animator Parameters
+        // 6. Update Animator
         if (animator != null)
         {
             animator.SetFloat("Speed", moveInput);
@@ -113,5 +121,4 @@ public class PlayerControl : MonoBehaviour
             OnEnergyChange?.Invoke();
         }
     }
-
 }

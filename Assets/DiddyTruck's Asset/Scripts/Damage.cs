@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Damage : MonoBehaviour
 {
+    [SerializeField] private StartDialogue tutorialDialogueScript;
     public float health = 10f;
 
     private void OnTriggerEnter(Collider other)
@@ -12,6 +13,7 @@ public class Damage : MonoBehaviour
             {
                 player.HealthManager(-health);
                 Destroy(gameObject);
+
             }
             else
             {

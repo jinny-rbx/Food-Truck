@@ -11,87 +11,114 @@ public class DialogueController : MonoBehaviour
     public static DialogueController instance;
     private void Awake()
     {
-        instance = this;
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
     #endregion 
 
+    public Action OnDialogueStarted;
     public Action OnAllDialogueFinished;
 
     [Header("Important References")]
     [SerializeField] private GameObject dialogueBoxPrefab;
-    [SerializeField][Tooltip("Set this to the parent transform of where you want your dialogue boxes to spawn.")] private Transform dialogueBoxParent;
+    [SerializeField] private Transform dialogueBoxParent;
 
     [Header("Dialogue Settings")]
-    [SerializeField][Tooltip("This dictates how long dialogue boxes stay on screen. Lower/Higher to make them last longer/shorter")] private int wpmReadingSpeed = 200;
-    [SerializeField][Tooltip("Dictates how fast text appears in the box. Use 0 if you wish for it to appear immediately.")] private float textTypeSpeed = 0.1f;
+    [SerializeField] private int wpmReadingSpeed = 200;
+    [SerializeField] private float textTypeSpeed = 0.1f;
     public SO_CharacterList characterList;
     public SO_TextStyleList textStyleList;
 
     [Header("Textbox Lerp Settings")]
-    [SerializeField]
-    [Tooltip("Lerp the texbox into place once it is called. This can be configured on the TextBox prefabs UiLerpElement component.")]
-    private bool lerpDialogueBoxesIn = false;
-    [SerializeField]
-    [Tooltip("True: Lerp effect is only applied to the first box showing up in the que. \n" +
-                            "False: Lerp effect is applied to every box in the que.")]
-    private bool onlyLerpFirstBoxInQue = false;
+    [SerializeField] private bool lerpDialogueBoxesIn = false;
+    [SerializeField] private bool onlyLerpFirstBoxInQue = false;
 
-    private List<GameObject> dialogueInstanceQue = new List<GameObject>();
-    private Coroutine queIterationCoroutine;
-    private bool firstQueIndex = false;
-
-    // Skip control variables
-    private bool skipRequested = false;
-
-    private void Update()
+    private struct DialogueEntry
     {
-        // Detect left click to skip text/dialogue
-        if (Input.GetMouseButtonDown(0))
+        public GameObject box;
+        public bool requiresMovementInput;
+
+        public DialogueEntry(GameObject box, bool requiresMovementInput = false)
         {
-            skipRequested = true;
+            this.box = box;
+            this.requiresMovementInput = requiresMovementInput;
         }
     }
 
-    public void NewDialogueInstance(string dialogue)
+    private List<DialogueEntry> dialogueInstanceQue = new List<DialogueEntry>();
+    private Coroutine queIterationCoroutine;
+    private bool firstQueIndex = false;
+
+    private bool skipRequested = false;
+    private bool isWaitingForMovementInput = false;
+    private bool movementDetectedThisLine = false;
+
+    public bool IsDialogueActive => dialogueInstanceQue.Count > 0;
+    public bool IsWaitingForMovementInput => isWaitingForMovementInput;
+
+    private void Update()
     {
+        // Detect Left Click for skipping (only if NOT waiting for movement)
+        if (Input.GetMouseButtonDown(0) && !isWaitingForMovementInput)
+        {
+            skipRequested = true;
+        }
+
+        // Track movement input if this line requested WASD
+        if (isWaitingForMovementInput && !movementDetectedThisLine)
+        {
+            float horizontal = Input.GetAxis("Horizontal");
+            float vertical = Input.GetAxis("Vertical");
+
+            if (Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f)
+            {
+                movementDetectedThisLine = true;
+            }
+        }
+    }
+
+    public void NewDialogueInstance(string dialogue, bool waitForWASD = false)
+    {
+        bool wasEmpty = dialogueInstanceQue.Count == 0;
+
         GameObject newDialogueBox = Instantiate(dialogueBoxPrefab, dialogueBoxParent);
         newDialogueBox.GetComponent<Textbox>().InitializeTextbox(ParseDialogueCustomStyle(dialogue));
         newDialogueBox.SetActive(false);
 
-        dialogueInstanceQue.Add(newDialogueBox);
+        dialogueInstanceQue.Add(new DialogueEntry(newDialogueBox, waitForWASD));
+
         if (queIterationCoroutine == null)
         {
+            if (wasEmpty) OnDialogueStarted?.Invoke();
             firstQueIndex = true;
             queIterationCoroutine = StartCoroutine(IterateQue());
         }
     }
 
-    public void NewDialogueInstance(string dialogue, string characterID)
+    public void NewDialogueInstance(string dialogue, string characterID, bool waitForWASD = false)
     {
-        if (characterList == null)
-        {
-            Debug.Log("<color=cyan>Trying to reference a characterID, however there is no CharacterList referenced in your DialogueController.</color>");
-            return;
-        }
+        if (characterList == null) return;
 
         CharacterProfile characterProfile = characterList.GetCharacter(characterID);
+        if (characterProfile.characterName == "NULL") return;
 
-        if (characterProfile.characterName == "NULL")
-        {
-            Debug.Log("<color=cyan>GetCharacter returned NULL. Not creating new dialogue instance.. Sorry </color>");
-            return;
-        }
+        bool wasEmpty = dialogueInstanceQue.Count == 0;
 
         GameObject newDialogueBox = Instantiate(dialogueBoxPrefab, dialogueBoxParent);
-
-        // FIX: Added ParseDialogueCustomStyle(dialogue) here so custom tags like [NAMES] are parsed
         newDialogueBox.GetComponent<Textbox>().InitializeTextbox(ParseDialogueCustomStyle(dialogue), characterProfile);
-
         newDialogueBox.SetActive(false);
 
-        dialogueInstanceQue.Add(newDialogueBox);
+        dialogueInstanceQue.Add(new DialogueEntry(newDialogueBox, waitForWASD));
+
         if (queIterationCoroutine == null)
         {
+            if (wasEmpty) OnDialogueStarted?.Invoke();
             firstQueIndex = true;
             queIterationCoroutine = StartCoroutine(IterateQue());
         }
@@ -99,59 +126,51 @@ public class DialogueController : MonoBehaviour
 
     private IEnumerator IterateQue()
     {
-        dialogueInstanceQue[0].SetActive(true);
+        DialogueEntry currentEntry = dialogueInstanceQue[0];
+        currentEntry.box.SetActive(true);
 
         if (lerpDialogueBoxesIn)
         {
-            if (dialogueInstanceQue[0].TryGetComponent(out UILerpElement lerpElement))
+            if (currentEntry.box.TryGetComponent(out UILerpElement lerpElement))
             {
-                if (onlyLerpFirstBoxInQue && firstQueIndex)
+                if ((onlyLerpFirstBoxInQue && firstQueIndex) || !onlyLerpFirstBoxInQue)
                 {
                     lerpElement.StartLerp();
                 }
-
-                if (!onlyLerpFirstBoxInQue)
-                {
-                    lerpElement.StartLerp();
-                }
-            }
-            else
-            {
-                Debug.Log("<color=cyan>Trying to lerp dialogue box, however we could not find UILerpElement.cs on it!</color>");
             }
         }
 
-        Textbox currentTextBox = dialogueInstanceQue[0].GetComponent<Textbox>();
+        Textbox currentTextBox = currentEntry.box.GetComponent<Textbox>();
 
-        // Prevent divide by zero if wpmReadingSpeed is set to 0 in Inspector
         int safeWpm = wpmReadingSpeed <= 0 ? 200 : wpmReadingSpeed;
         float displayLength = currentTextBox.dialogue.Split(' ').Length / ((float)safeWpm / 60f);
 
-        if (currentTextBox.dialogue.Length * textTypeSpeed >= displayLength)
-        {
-            Debug.LogWarning("<color=cyan>Your textTypeSpeed is too slow in comparison to your wpmReadingSpeed. Dialogue box will disappear before all text is shown.</color>");
-        }
-
         currentTextBox.DisplayText(textTypeSpeed);
 
-        // Reset skip flag at start of new dialogue line
         skipRequested = false;
+        movementDetectedThisLine = false;
+
+        // Enable movement mode for this line immediately
+        if (currentEntry.requiresMovementInput)
+        {
+            isWaitingForMovementInput = true;
+        }
 
         float timer = 0f;
+
+        // Step 1: Display text & timer tick
         while (timer < displayLength)
         {
             if (skipRequested)
             {
                 skipRequested = false;
 
-                // If text is still typing out, instantly complete typing first
-                if (currentTextBox.IsTyping) // Ensure your Textbox script has an IsTyping check/method
+                if (currentTextBox.IsTyping)
                 {
                     currentTextBox.CompleteTextInstantly();
                 }
                 else
                 {
-                    // If text is already done typing, skip the remaining wait time
                     break;
                 }
             }
@@ -160,8 +179,21 @@ public class DialogueController : MonoBehaviour
             yield return null;
         }
 
-        var toDestroy = dialogueInstanceQue[0];
-        dialogueInstanceQue.Remove(toDestroy);
+        // Step 2: If WASD was required, keep movement enabled until player moves at least once
+        if (currentEntry.requiresMovementInput)
+        {
+            while (!movementDetectedThisLine)
+            {
+                yield return null;
+            }
+
+            // Give player 0.5 seconds of free movement before advancing to next dialogue line
+            yield return new WaitForSeconds(0.5f);
+            isWaitingForMovementInput = false;
+        }
+
+        var toDestroy = dialogueInstanceQue[0].box;
+        dialogueInstanceQue.RemoveAt(0);
         Destroy(toDestroy);
 
         firstQueIndex = false;
@@ -173,15 +205,8 @@ public class DialogueController : MonoBehaviour
         else
         {
             queIterationCoroutine = null;
+            OnAllDialogueFinished?.Invoke();
         }
-    }
-
-    //---------------------------------------------- Parsing Text For Custom Styles -----------------------------------------------------------------
-
-    [ContextMenu("Test Parse")]
-    public void TestParse()
-    {
-        Debug.Log(ParseDialogueCustomStyle("This is a test to find [TEST] and [/TEST] see [WHEENENNEN] how many times we can find it.[/WHEENENNEN]"));
     }
 
     public string ParseDialogueCustomStyle(string toParse)
@@ -189,13 +214,8 @@ public class DialogueController : MonoBehaviour
         string rawString = toParse;
         if (rawString.Contains("["))
         {
-            if (textStyleList == null)
-            {
-                Debug.Log("<color=cyan>Custom style tag detected in string, however DialogueController does not have a StyleSheetList referenced!</color>");
-                return rawString;
-            }
+            if (textStyleList == null) return rawString;
             string pattern = @"\[[A-Za-z]+\]";
-            string richtextString = toParse;
 
             foreach (Match match in Regex.Matches(rawString, pattern))
             {
@@ -211,60 +231,21 @@ public class DialogueController : MonoBehaviour
                 string taglessString = rawString.Substring(stringStartIndex, stringEndIndex - stringStartIndex);
 
                 CustomTextStyle textStyle = textStyleList.GetTextStyle(matchedTag.Replace("[", "").Replace("]", ""));
-                if (textStyle == null)
-                {
-                    Debug.Log("<color=cyan>Could not find the custom text style [" + matchedTag + "] in your text: " + rawString + "</color>");
-                    return rawString;
-                }
+                if (textStyle == null) return rawString;
 
-                if (textStyle.isAllCaps)
-                {
-                    taglessString = "<allcaps>" + taglessString + "</allcaps>";
-                }
-
-                if (textStyle.overrideCharacterSpacing)
-                {
-                    taglessString = "<cspace=" + textStyle.spacingSize + ">" + taglessString + "</cspace>";
-                }
-
-                if (textStyle.isStrikeThrough)
-                {
-                    taglessString = "<s>" + taglessString + "</s>";
-                }
-
-                if (textStyle.isUnderLine)
-                {
-                    taglessString = "<u>" + taglessString + "</u>";
-                }
-
-                if (textStyle.isBold)
-                {
-                    taglessString = "<b>" + taglessString + "</b>";
-                }
-
-                if (textStyle.isItalic)
-                {
-                    taglessString = "<i>" + taglessString + "</i>";
-                }
-
-                if (textStyle.overrideColor)
-                {
-                    string colourHex = ColorUtility.ToHtmlStringRGB(textStyle.textColor);
-                    taglessString = "<color=#" + colourHex + ">" + taglessString + "</color>";
-                }
-
-                if (textStyle.isHighlighted)
-                {
-                    string colourHex = ColorUtility.ToHtmlStringRGB(textStyle.highLightColor);
-                    taglessString = "<mark=#" + colourHex + "aa>" + taglessString + "</mark>";
-                }
-
+                if (textStyle.isAllCaps) taglessString = "<allcaps>" + taglessString + "</allcaps>";
+                if (textStyle.overrideCharacterSpacing) taglessString = "<cspace=" + textStyle.spacingSize + ">" + taglessString + "</cspace>";
+                if (textStyle.isStrikeThrough) taglessString = "<s>" + taglessString + "</s>";
+                if (textStyle.isUnderLine) taglessString = "<u>" + taglessString + "</u>";
+                if (textStyle.isBold) taglessString = "<b>" + taglessString + "</b>";
+                if (textStyle.isItalic) taglessString = "<i>" + taglessString + "</i>";
+                if (textStyle.overrideColor) taglessString = "<color=#" + ColorUtility.ToHtmlStringRGB(textStyle.textColor) + ">" + taglessString + "</color>";
+                if (textStyle.isHighlighted) taglessString = "<mark=#" + ColorUtility.ToHtmlStringRGB(textStyle.highLightColor) + "aa>" + taglessString + "</mark>";
                 if (textStyle.overrideFontSize)
                 {
                     string sizeValue = textStyle.sizeChangeAsPercent ? textStyle.fontSize + "%" : textStyle.fontSize.ToString();
                     taglessString = "<size=" + sizeValue + ">" + taglessString + "</size>";
                 }
-
                 if (textStyle.useTextAnimation)
                 {
                     taglessString = "<animate=" + textStyle.textAnimationSettings.GetSettingsSeed() + ">" + taglessString + "</animate>";
