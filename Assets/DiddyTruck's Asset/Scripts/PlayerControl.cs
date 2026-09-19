@@ -11,17 +11,19 @@ public class PlayerControl : MonoBehaviour
     public float turnSpeed = 90f;        // Rotation speed in degrees per second
     public float gravity = -9.81f;
 
-    [Header("Stats")]
+    [Header("Player")]
     public float currentHealth;
-    public float maxHealth = 100;
     public float currentSatisfy;
-    public float maxSatisfy;
+    public float currentEnergy;
 
-
-
+    [Header("Action")]
     public Action OnHealthChange;
     public Action OnSatisfyChange;
+    public Action OnEnergyChange;
 
+
+
+    private GameManager game;
     private CharacterController controller;
     private Animator animator;
     private Vector3 velocity;
@@ -30,10 +32,22 @@ public class PlayerControl : MonoBehaviour
 
     void Start()
     {
-        currentHealth = maxHealth;
+        // Fix: Connect to the Singleton Instance
+        game = GameManager.Instance;
 
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+
+        if (game != null)
+        {
+            currentHealth = game.maxHealth;
+            currentSatisfy = 0;
+            currentEnergy = game.maxEnergy;
+        }
+        else
+        {
+            Debug.LogError("GameManager Instance is missing in the scene!");
+        }
 
         // Save initial Y rotation
         startYRotation = transform.eulerAngles.y;
@@ -75,7 +89,7 @@ public class PlayerControl : MonoBehaviour
 
     public void HealthManager(float damagePoints)
     {
-        if (currentHealth > 0 && currentHealth <= maxHealth)
+        if (currentHealth > 0 && currentHealth <= game.maxHealth)
         {
             currentHealth += damagePoints;
             OnHealthChange?.Invoke();
@@ -84,10 +98,19 @@ public class PlayerControl : MonoBehaviour
 
     public void SatisfactionManager(float Points)
     {
-        if (currentSatisfy > 0 && currentSatisfy <= maxSatisfy)
+        if (currentSatisfy >= 0 && currentSatisfy <= game.maxSatisfy)
         {
             currentSatisfy += Points;
             OnSatisfyChange?.Invoke();
+        }
+    }
+
+    public void EnergyManager(float Points)
+    {
+        if (currentEnergy >= 0 && currentEnergy <= game.maxEnergy)
+        {
+            currentEnergy += Points;
+            OnEnergyChange?.Invoke();
         }
     }
 

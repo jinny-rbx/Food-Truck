@@ -14,6 +14,12 @@ public class GameManager : MonoBehaviour
         [HideInInspector] public int currentAmount = 0;
     }
 
+    [Header("Player")]
+    [SerializeField] private PlayerControl player;
+    [SerializeField] public float maxHealth = 100f;
+    [SerializeField] public float maxEnergy = 100f;
+    [SerializeField] public int maxSatisfy = 10;
+
     [Header("Requirements")]
     [SerializeField] private MaterialRequirement[] requiredMaterials;
 
@@ -22,15 +28,6 @@ public class GameManager : MonoBehaviour
 
     [Header("Extraction Settings")]
     [SerializeField] private GameObject extractionZoneObject; // Drag your Exit Zone GameObject here
-
-    [Header("References")]
-    [SerializeField] private PlayerControl player;
-    [SerializeField] private Energy playerEnergy; // Your energy script
-    [SerializeField] private CollectionMeter collectionMeter;
-
-    [Header("Star Requirements")]
-    [SerializeField] private float maxEnergyLimit = 100f; // What counts as "Full" Energy
-    [SerializeField] private int maxOrbsLimit = 20;       // Full meter target
 
     [Header("UI Star Visuals (Images or GameObjects)")]
     [SerializeField] private GameObject star1Icon;
@@ -72,11 +69,22 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (player.currentHealth <= 0 || playerEnergy.CurrentEnergy <= 0)
+        // Fix: Auto-find player if not assigned in Inspector
+        if (player == null)
         {
-            End();
+            player = FindAnyObjectByType<PlayerControl>();
+        }
+
+        // Fix: Guard clause prevents NullReferenceException
+        if (player != null)
+        {
+            if (player.currentHealth <= 0 || player.currentEnergy <= 0)
+            {
+                End();
+            }
         }
     }
+
     public void CollectMaterial(string materialID, int amount)
     {
         if (AreObjectivesMet) return;
@@ -158,14 +166,14 @@ public class GameManager : MonoBehaviour
         int totalStars = 0;
 
         // Condition 1: Full Energy
-        if (playerEnergy != null && playerEnergy.CurrentEnergy >= maxEnergyLimit)
+        if (player != null && player.currentEnergy >= maxEnergy)
         {
             totalStars++;
             Debug.Log("Star 1 Earned: Full Energy!");
         }
 
         // Condition 2: Full Collection Meter
-        if (collectionMeter != null && collectionMeter.CurrentOrbs >= maxOrbsLimit)
+        if (player != null && player.currentSatisfy >= maxSatisfy)
         {
             totalStars++;
             Debug.Log("Star 2 Earned: Meter Full!");

@@ -2,18 +2,21 @@ using UnityEngine;
 
 public class Damage : MonoBehaviour
 {
-    public float damage;
+    public float health = 10f;
 
     private void OnTriggerEnter(Collider other)
     {
-        // Check if the object touching it has the "Player" tag
         if (other.CompareTag("Player"))
         {
-            print("touched");
-            PlayerControl playerHP = other.GetComponent<PlayerControl>();
-            playerHP.HealthManager(-damage);
-            // Option 1: Completely destroy the object
-            Destroy(gameObject);
+            if (other.TryGetComponent<PlayerControl>(out PlayerControl player))
+            {
+                player.HealthManager(-health);
+                Destroy(gameObject);
+            }
+            else
+            {
+                Debug.LogWarning("Object tagged 'Player' is missing the PlayerControl component!");
+            }
         }
     }
 }

@@ -4,16 +4,15 @@ public class Coollectible : MonoBehaviour
 {
     [SerializeField] private string materialID = "Crystal"; // Identifies the item type
     [SerializeField] private int amount = 1;
+    public float points;
 
     private void OnTriggerEnter(Collider other)
     {
-        // Adjust tag check based on your Player setup
         if (other.CompareTag("Player"))
         {
-            if (CollectionMeter.Instance != null)
-            {
-                CollectionMeter.Instance.AddOrb(1);
-            }
+            PlayerControl player = other.GetComponent<PlayerControl>();
+            player.SatisfactionManager(points);
+
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.CollectMaterial(materialID, amount);
