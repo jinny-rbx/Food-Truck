@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class Damage : MonoBehaviour
 {
-    [SerializeField] private StartDialogue tutorialDialogueScript;
-    public float health = 10f;
+    public float healthDamage = 10f;
+    public GameObject enemy;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -11,13 +11,8 @@ public class Damage : MonoBehaviour
         {
             if (other.TryGetComponent<PlayerControl>(out PlayerControl player))
             {
-                player.HealthManager(-health);
-                Destroy(gameObject);
-
-            }
-            else
-            {
-                Debug.LogWarning("Object tagged 'Player' is missing the PlayerControl component!");
+                player.HealthManager(-healthDamage);
+                Destroy(enemy);
             }
         }
     }

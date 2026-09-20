@@ -109,6 +109,7 @@ public class PlayerControl : MonoBehaviour
         if (currentSatisfy >= 0 && currentSatisfy <= game.maxSatisfy)
         {
             currentSatisfy += Points;
+            currentSatisfy = Mathf.Clamp(currentSatisfy, 0f, game.maxSatisfy);
             OnSatisfyChange?.Invoke();
         }
     }
@@ -118,6 +119,7 @@ public class PlayerControl : MonoBehaviour
         if (currentEnergy >= 0 && currentEnergy <= game.maxEnergy)
         {
             currentEnergy += Points;
+            currentEnergy = Mathf.Clamp(currentEnergy, 0f, game.maxEnergy);
             OnEnergyChange?.Invoke();
         }
     }

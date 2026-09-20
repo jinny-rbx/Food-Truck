@@ -36,6 +36,7 @@ public class GameManager : MonoBehaviour
 
 
     [SerializeField] private GameObject UI;
+    [SerializeField] private GameObject waypoint;
     [SerializeField] private GameObject WinScreen;
     [SerializeField] private GameObject EndScreen;
 
@@ -54,6 +55,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         UI.SetActive(true);
+        waypoint.SetActive(false);
         EndScreen.SetActive(false);
         WinScreen.SetActive(false);
         Time.timeScale = 1f;
@@ -197,6 +199,7 @@ public class GameManager : MonoBehaviour
     public void End()
     {
         UI.SetActive(false);
+        waypoint.SetActive(false);
         EndScreen.SetActive(true);
         WinScreen.SetActive(false);
         Time.timeScale = 0f;
@@ -205,6 +208,7 @@ public class GameManager : MonoBehaviour
     public void Win()
     {
         UI.SetActive(false);
+        waypoint.SetActive(false);
         EndScreen.SetActive(false);
         WinScreen.SetActive(true);
         Time.timeScale = 0f;
