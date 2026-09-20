@@ -12,19 +12,18 @@ public class GameUIHandler : MonoBehaviour
     private VisualElement m_SatisfyBarMask;
     private VisualElement m_EnergyBarMask;
 
-    private void Start()
+    private void Awake()
     {
-        // Auto-assign missing inspector references to prevent NullReferenceExceptions
+        // Cache core references on startup
+        if (UIDoc == null) UIDoc = GetComponent<UIDocument>();
         if (PlayerControl == null) PlayerControl = FindAnyObjectByType<PlayerControl>();
         if (GameManager == null) GameManager = GameManager.Instance ?? FindAnyObjectByType<GameManager>();
-        if (UIDoc == null) UIDoc = GetComponent<UIDocument>();
+    }
 
-        if (PlayerControl != null)
-        {
-            PlayerControl.OnHealthChange += HealthChanged;
-            PlayerControl.OnSatisfyChange += SatisfactionChanged;
-            PlayerControl.OnEnergyChange += EnergyChanged;
-        }
+    private void OnEnable()
+    {
+        // 1. RE-QUERY the UI Toolkit elements because rootVisualElement resets when toggling panels
+        if (UIDoc == null) UIDoc = GetComponent<UIDocument>();
 
         if (UIDoc != null && UIDoc.rootVisualElement != null)
         {
@@ -35,13 +34,30 @@ public class GameUIHandler : MonoBehaviour
             m_EnergyBarMask = root.Q<VisualElement>("EnergyBarMask");
         }
 
-        HealthChanged();
-        SatisfactionChanged();
-        EnergyChanged();
+        // 2. Re-bind PlayerControl reference if missing
+        if (PlayerControl == null) PlayerControl = FindAnyObjectByType<PlayerControl>();
+        if (GameManager == null) GameManager = GameManager.Instance ?? FindAnyObjectByType<GameManager>();
+
+        // 3. Unsubscribe first to avoid duplicate event calls, then subscribe
+        if (PlayerControl != null)
+        {
+            PlayerControl.OnHealthChange -= HealthChanged;
+            PlayerControl.OnHealthChange += HealthChanged;
+
+            PlayerControl.OnSatisfyChange -= SatisfactionChanged;
+            PlayerControl.OnSatisfyChange += SatisfactionChanged;
+
+            PlayerControl.OnEnergyChange -= EnergyChanged;
+            PlayerControl.OnEnergyChange += EnergyChanged;
+        }
+
+        // 4. Force immediate UI refresh with active stats
+        UpdateAllUI();
     }
 
     private void OnDisable()
     {
+        // Clean up subscriptions when UI panel is hidden
         if (PlayerControl != null)
         {
             PlayerControl.OnHealthChange -= HealthChanged;
@@ -50,9 +66,15 @@ public class GameUIHandler : MonoBehaviour
         }
     }
 
+    public void UpdateAllUI()
+    {
+        HealthChanged();
+        SatisfactionChanged();
+        EnergyChanged();
+    }
+
     void HealthChanged()
     {
-        // Guard clause prevents calling methods on null references
         if (PlayerControl == null || GameManager == null) return;
 
         float healthRatio = (float)PlayerControl.currentHealth / GameManager.maxHealth;

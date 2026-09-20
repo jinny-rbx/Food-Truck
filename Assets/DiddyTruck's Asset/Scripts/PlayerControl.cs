@@ -28,21 +28,32 @@ public class PlayerControl : MonoBehaviour
     private float startYRotation;
     private float currentRelativeAngle = 0f;
 
+    private bool isInitialized = false;
+
+    private void Awake()
+    {
+        controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
+    }
+
     void Start()
     {
         game = GameManager.Instance;
-        controller = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
 
-        if (game != null)
+        // ONLY initialize starting stats ONCE when entering the scene for the first time
+        if (!isInitialized)
         {
-            currentHealth = game.maxHealth;
-            currentSatisfy = 0;
-            currentEnergy = game.maxEnergy;
-        }
-        else
-        {
-            Debug.LogError("GameManager Instance is missing in the scene!");
+            if (game != null)
+            {
+                currentHealth = game.maxHealth;
+                currentSatisfy = 0;
+                currentEnergy = game.maxEnergy;
+                isInitialized = true;
+            }
+            else
+            {
+                Debug.LogError("GameManager Instance is missing in the scene!");
+            }
         }
 
         startYRotation = transform.eulerAngles.y;
@@ -97,30 +108,33 @@ public class PlayerControl : MonoBehaviour
 
     public void HealthManager(float damagePoints)
     {
-        if (currentHealth > 0 && currentHealth <= game.maxHealth)
-        {
-            currentHealth += damagePoints;
-            OnHealthChange?.Invoke();
-        }
+        if (game == null) game = GameManager.Instance;
+        if (game == null) return;
+
+        currentHealth += damagePoints;
+        currentHealth = Mathf.Clamp(currentHealth, 0f, game.maxHealth);
+        OnHealthChange?.Invoke();
     }
 
     public void SatisfactionManager(float Points)
     {
-        if (currentSatisfy >= 0 && currentSatisfy <= game.maxSatisfy)
-        {
-            currentSatisfy += Points;
-            currentSatisfy = Mathf.Clamp(currentSatisfy, 0f, game.maxSatisfy);
-            OnSatisfyChange?.Invoke();
-        }
+        if (game == null) game = GameManager.Instance;
+
+        currentSatisfy += Points;
+        currentSatisfy = Mathf.Clamp(currentSatisfy, 0f, game != null ? game.maxSatisfy : 100f);
+
+        Debug.Log($"[PlayerControl] Satisfaction Changed! Current: {currentSatisfy}");
+
+        OnSatisfyChange?.Invoke();
     }
 
     public void EnergyManager(float Points)
     {
-        if (currentEnergy >= 0 && currentEnergy <= game.maxEnergy)
-        {
-            currentEnergy += Points;
-            currentEnergy = Mathf.Clamp(currentEnergy, 0f, game.maxEnergy);
-            OnEnergyChange?.Invoke();
-        }
+        if (game == null) game = GameManager.Instance;
+        if (game == null) return;
+
+        currentEnergy += Points;
+        currentEnergy = Mathf.Clamp(currentEnergy, 0f, game.maxEnergy);
+        OnEnergyChange?.Invoke();
     }
 }
