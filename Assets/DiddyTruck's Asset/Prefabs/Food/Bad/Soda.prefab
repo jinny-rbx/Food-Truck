@@ -261,6 +261,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   points: 4
   energy: 20
+  obj: {fileID: 0}
 --- !u!114 &4305031382412961226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275,7 +276,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Coollectible
   materialID: Soda
   amount: 1
+  collectSound: {fileID: 0}
   points: 0
+  obj: {fileID: 0}
 --- !u!114 &2888038573488352661
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306,4 +309,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Coollectible
   materialID: Unhealthy Food
   amount: 1
+  collectSound: {fileID: 8300000, guid: 5be1e8ace0ee5804198dc2eb671169c2, type: 3}
   points: 0
+  obj: {fileID: 0}
