@@ -95,21 +95,13 @@ public class SoundManager : MonoBehaviour
 
     public void PlaySound2D(string soundName)
     {
-        if (sfxLibrary == null || sfx2DSource == null)
-        {
-            Debug.LogWarning("[SoundManager] sfxLibrary or sfx2DSource is null!");
-            return;
-        }
+        if (sfxLibrary == null || sfx2DSource == null) return;
 
         AudioClip clip = sfxLibrary.GetClipFromName(soundName);
         if (clip != null)
         {
-            // Ensures 2D source plays regardless of camera position
+            Debug.Log($"[SoundManager] Playing 2D SFX: {soundName}");
             sfx2DSource.PlayOneShot(clip);
-        }
-        else
-        {
-            Debug.LogWarning($"[SoundManager] SFX clip '{soundName}' not found in SoundLibrary!");
         }
     }
 
