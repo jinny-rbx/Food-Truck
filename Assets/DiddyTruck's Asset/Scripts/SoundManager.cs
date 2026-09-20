@@ -93,6 +93,19 @@ public class SoundManager : MonoBehaviour
     // SFX METHODS
     // ==========================================
 
+    /// <summary>
+    /// Plays a direct AudioClip using the 2D SFX source.
+    /// </summary>
+    public void PlaySound2D(AudioClip clip, float volume = 1f)
+    {
+        if (clip == null || sfx2DSource == null) return;
+
+        sfx2DSource.PlayOneShot(clip, volume);
+    }
+
+    /// <summary>
+    /// Plays a 2D SFX lookup by string name from the SoundLibrary.
+    /// </summary>
     public void PlaySound2D(string soundName)
     {
         if (sfxLibrary == null || sfx2DSource == null) return;
@@ -101,7 +114,7 @@ public class SoundManager : MonoBehaviour
         if (clip != null)
         {
             Debug.Log($"[SoundManager] Playing 2D SFX: {soundName}");
-            sfx2DSource.PlayOneShot(clip);
+            PlaySound2D(clip);
         }
     }
 
@@ -126,7 +139,7 @@ public class SoundManager : MonoBehaviour
     // ==========================================
 
     /// <summary>
-    /// Plays background music from a direct AudioClip.
+    /// Plays background music using a name from your SoundLibrary.
     /// </summary>
     public void PlayMusic(string soundName, bool loop = true)
     {
@@ -149,7 +162,7 @@ public class SoundManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Plays background music using a name from your SoundLibrary.
+    /// Plays background music from a direct AudioClip.
     /// </summary>
     public void PlayMusic(AudioClip musicClip, bool loop = true)
     {

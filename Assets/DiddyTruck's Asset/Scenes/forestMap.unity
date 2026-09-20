@@ -1127,11 +1127,19 @@ PrefabInstance:
       value: Healthy Food
       objectReference: {fileID: 0}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
+      propertyPath: requiredMaterials.Array.data[2].materialID
+      value: Healthy Food
+      objectReference: {fileID: 0}
+    - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.data[0].requiredAmount
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.data[1].requiredAmount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
+      propertyPath: requiredMaterials.Array.data[2].requiredAmount
       value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []

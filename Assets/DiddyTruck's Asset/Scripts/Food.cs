@@ -1,9 +1,11 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class Food : MonoBehaviour
 {
     public float points = 10f;
     public float energy = 10f;
+    public GameObject obj;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -22,8 +24,7 @@ public class Food : MonoBehaviour
                 {
                     SoundManager.Instance.PlaySound2D("FoodPickup");
                 }
-
-                Destroy(gameObject);
+                Destroy(obj);
             }
             else
             {
