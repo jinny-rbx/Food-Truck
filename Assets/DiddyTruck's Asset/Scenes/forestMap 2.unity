@@ -1128,19 +1128,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.data[2].materialID
-      value: brocoli
+      value: Broccoli
       objectReference: {fileID: 0}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.data[3].materialID
-      value: carrot
+      value: Carrot
       objectReference: {fileID: 0}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.data[4].materialID
-      value: fries
+      value: Fries
       objectReference: {fileID: 0}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.data[5].materialID
-      value: soda
+      value: Soda
       objectReference: {fileID: 0}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.data[6].materialID
@@ -1215,7 +1215,7 @@ MonoBehaviour:
   - groupName: Trap
     variations:
     - {fileID: 7278006640317355196, guid: 39d4c37d0b5e5534da3ee6e5c9bc2790, type: 3}
-  spawnAmount: 100
+  spawnAmount: 150
   centerOffset: {x: 211.67, y: 150.8, z: 0}
   spawnAreaSize: {x: 830.2, y: 0, z: 815.1}
   alignToGround: 1
