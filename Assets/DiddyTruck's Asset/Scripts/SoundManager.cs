@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 
 public class SoundManager : MonoBehaviour
 {
@@ -25,15 +26,46 @@ public class SoundManager : MonoBehaviour
             // Assign mixer groups to the audio sources automatically
             ApplyMixerGroups();
         }
-        else
+        else if (Instance != this)
         {
             Destroy(gameObject);
         }
     }
 
+    private void OnEnable()
+    {
+        // Subscribe to Unity's scene loading callback
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe to avoid memory leaks
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
     public void Start()
     {
-        // Apply saved PlayerPrefs volumes as soon as SoundManager initializes
+        ApplySavedVolumes();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"[SoundManager] Scene Loaded: {scene.name}");
+        ApplySavedVolumes();
+
+        if (scene.name == "Menu")
+        {
+            Debug.Log("[SoundManager] Scene is 'Menu' -> Attempting to play MainTheme...");
+            PlayMusic("MainTheme");
+        }
+    }
+
+    /// <summary>
+    /// Fetches saved volume levels from PlayerPrefs and updates the AudioMixer parameters.
+    /// </summary>
+    public void ApplySavedVolumes()
+    {
         float music = PlayerPrefs.GetFloat("MusicVolume", 0.75f);
         float sfx = PlayerPrefs.GetFloat("SFXVolume", 0.75f);
 
@@ -42,12 +74,8 @@ public class SoundManager : MonoBehaviour
             mainMixer.SetFloat("MusicVol", Mathf.Log10(Mathf.Max(music, 0.0001f)) * 20f);
             mainMixer.SetFloat("SFXVol", Mathf.Log10(Mathf.Max(sfx, 0.0001f)) * 20f);
         }
-
-        if (SoundManager.Instance != null)
-        {
-            SoundManager.Instance.PlayMusic("MainTheme");
-        }
     }
+
     private void ApplyMixerGroups()
     {
         if (sfx2DSource != null && sfxMixerGroup != null)
@@ -67,12 +95,21 @@ public class SoundManager : MonoBehaviour
 
     public void PlaySound2D(string soundName)
     {
-        if (sfxLibrary == null || sfx2DSource == null) return;
+        if (sfxLibrary == null || sfx2DSource == null)
+        {
+            Debug.LogWarning("[SoundManager] sfxLibrary or sfx2DSource is null!");
+            return;
+        }
 
         AudioClip clip = sfxLibrary.GetClipFromName(soundName);
         if (clip != null)
         {
+            // Ensures 2D source plays regardless of camera position
             sfx2DSource.PlayOneShot(clip);
+        }
+        else
+        {
+            Debug.LogWarning($"[SoundManager] SFX clip '{soundName}' not found in SoundLibrary!");
         }
     }
 
@@ -99,27 +136,53 @@ public class SoundManager : MonoBehaviour
     /// <summary>
     /// Plays background music from a direct AudioClip.
     /// </summary>
-    public void PlayMusic(AudioClip musicClip, bool loop = true)
+    public void PlayMusic(string soundName, bool loop = true)
     {
-        if (musicSource == null || musicClip == null) return;
+        if (sfxLibrary == null)
+        {
+            Debug.LogError("[SoundManager] CRITICAL: sfxLibrary is NULL!");
+            return;
+        }
 
-        // Don't restart if the same song is already playing
-        if (musicSource.isPlaying && musicSource.clip == musicClip) return;
+        AudioClip clip = sfxLibrary.GetClipFromName(soundName);
 
-        musicSource.clip = musicClip;
-        musicSource.loop = loop;
-        musicSource.Play();
+        if (clip == null)
+        {
+            Debug.LogError($"[SoundManager] CRITICAL: Could not find AudioClip with name '{soundName}' in SoundLibrary!");
+            return;
+        }
+
+        Debug.Log($"[SoundManager] Found clip '{clip.name}'. Assigning to musicSource...");
+        PlayMusic(clip, loop);
     }
 
     /// <summary>
     /// Plays background music using a name from your SoundLibrary.
     /// </summary>
-    public void PlayMusic(string soundName, bool loop = true)
+    public void PlayMusic(AudioClip musicClip, bool loop = true)
     {
-        if (sfxLibrary == null) return;
+        if (musicSource == null)
+        {
+            Debug.LogError("[SoundManager] CRITICAL: musicSource (AudioSource) is NULL!");
+            return;
+        }
 
-        AudioClip clip = sfxLibrary.GetClipFromName(soundName);
-        PlayMusic(clip, loop);
+        if (musicClip == null)
+        {
+            Debug.LogError("[SoundManager] CRITICAL: musicClip passed to PlayMusic is NULL!");
+            return;
+        }
+
+        if (musicSource.isPlaying && musicSource.clip == musicClip)
+        {
+            Debug.Log("[SoundManager] Music is already playing this exact clip. Skipping restart.");
+            return;
+        }
+
+        musicSource.clip = musicClip;
+        musicSource.loop = loop;
+        musicSource.Play();
+        Debug.Log($"[SoundManager] SUCCESS: Playing '{musicClip.name}' on {musicSource.name}! isPlaying = {musicSource.isPlaying}");
     }
 
     /// <summary>

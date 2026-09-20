@@ -97,5 +97,17 @@ public class LevelManager : MonoBehaviour
         yield return transition.AnimateTransitionOut();
 
         transition.gameObject.SetActive(false);
+
+        // ADD THIS: Force SoundManager to update after transition fully finishes
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.ApplySavedVolumes();
+
+            // If returning to Menu, ensure song plays after transition ends
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Menu")
+            {
+                SoundManager.Instance.PlayMusic("MainTheme");
+            }
+        }
     }
 }
