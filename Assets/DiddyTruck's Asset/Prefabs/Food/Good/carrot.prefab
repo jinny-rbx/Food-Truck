@@ -445,6 +445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Food
   points: 2
   energy: 20
+  obj: {fileID: 0}
 --- !u!114 &8858739736210404003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -459,7 +460,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Coollectible
   materialID: Carrot
   amount: 1
+  collectSound: {fileID: 0}
   points: 0
+  obj: {fileID: 0}
 --- !u!114 &5667276853206359267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -490,7 +493,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Coollectible
   materialID: Healthy Food
   amount: 1
+  collectSound: {fileID: 8300000, guid: 5be1e8ace0ee5804198dc2eb671169c2, type: 3}
   points: 0
+  obj: {fileID: 0}
 --- !u!1 &6884514495045334028
 GameObject:
   m_ObjectHideFlags: 0
