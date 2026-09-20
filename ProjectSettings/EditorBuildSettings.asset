@@ -15,7 +15,10 @@ EditorBuildSettings:
     path: Assets/DiddyTruck's Asset/Scenes/forestMap.unity
     guid: 19347ddaa9661244e8e40377314cc90c
   - enabled: 1
-    path: Assets/DiddyTruck's Asset/Scenes/Game 2.unity
-    guid: 294312865871de64baf683da22610fc1
+    path: Assets/DiddyTruck's Asset/Scenes/forestMap 2.unity
+    guid: b4d7cfd63ec89c24eb5e35b31c96220b
+  - enabled: 1
+    path: Assets/DiddyTruck's Asset/Scenes/EndGame.unity
+    guid: 4071fa63bb0d2c048813d1536ccd54c3
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
