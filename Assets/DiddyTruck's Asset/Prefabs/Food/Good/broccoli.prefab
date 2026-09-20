@@ -120,7 +120,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Coollectible
   materialID: Broccoli
   amount: 1
-  collectSound: {fileID: 0}
+  collectSound: {fileID: 8300000, guid: 5be1e8ace0ee5804198dc2eb671169c2, type: 3}
   points: 0
   obj: {fileID: 0}
 --- !u!114 &5153784966131099580
