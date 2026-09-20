@@ -9,15 +9,33 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private Slider musicSlider;
     [SerializeField] private Slider sfxSlider;
 
-    [Header("Control Guide Window")]
+    [Header("Control Guide UI")]
+    [SerializeField] private Toggle controlGuideToggle;
     [SerializeField] private GameObject controlGuidePanel;
 
+    [Header("UI Panels to Toggle")]
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject hudPanel;
+    [SerializeField] private GameObject objectivePanel;
+
+    private const string CONTROL_GUIDE_KEY = "ControlGuideState";
     private const string MUSIC_KEY = "MusicVolume";
     private const string SFX_KEY = "SFXVolume";
 
     private void Start()
     {
-        // Set slider range from 0.0001 to 1 (prevents log10 math errors with 0)
+        // 1. Configure slider min/max bounds FIRST
+        ConfigureSliders();
+
+        // 2. Load saved settings from PlayerPrefs
+        LoadSettings();
+
+        // 3. Add UI Listeners AFTER setting initial values
+        RegisterListeners();
+    }
+
+    private void ConfigureSliders()
+    {
         if (musicSlider != null)
         {
             musicSlider.minValue = 0.0001f;
@@ -29,19 +47,38 @@ public class SettingsManager : MonoBehaviour
             sfxSlider.minValue = 0.0001f;
             sfxSlider.maxValue = 1f;
         }
+    }
 
-        // Load saved values or set defaults to 0.75f
+    private void LoadSettings()
+    {
+        // --- Volume Settings ---
         float savedMusic = PlayerPrefs.GetFloat(MUSIC_KEY, 0.75f);
         float savedSFX = PlayerPrefs.GetFloat(SFX_KEY, 0.75f);
 
-        // Apply saved values to UI and Audio Mixer
+        // Update UI Sliders
         if (musicSlider != null) musicSlider.value = savedMusic;
         if (sfxSlider != null) sfxSlider.value = savedSFX;
 
+        // Apply to AudioMixer
         SetMusicVolume(savedMusic);
         SetSFXVolume(savedSFX);
 
-        // Add UI Listeners dynamically
+        // --- Control Guide Toggle Settings ---
+        bool savedControlGuideState = PlayerPrefs.GetInt(CONTROL_GUIDE_KEY, 0) == 1;
+
+        if (controlGuideToggle != null)
+        {
+            controlGuideToggle.SetIsOnWithoutNotify(savedControlGuideState);
+        }
+
+        if (controlGuidePanel != null)
+        {
+            controlGuidePanel.SetActive(savedControlGuideState);
+        }
+    }
+
+    private void RegisterListeners()
+    {
         if (musicSlider != null)
             musicSlider.onValueChanged.AddListener(SetMusicVolume);
 
@@ -49,23 +86,37 @@ public class SettingsManager : MonoBehaviour
             sfxSlider.onValueChanged.AddListener(SetSFXVolume);
     }
 
+    private void OnDestroy()
+    {
+        // Clean up listeners when switching scenes to avoid memory leaks
+        if (musicSlider != null)
+            musicSlider.onValueChanged.RemoveListener(SetMusicVolume);
+
+        if (sfxSlider != null)
+            sfxSlider.onValueChanged.RemoveListener(SetSFXVolume);
+    }
+
+    // --- Audio Volume Setters ---
     public void SetMusicVolume(float value)
     {
-        // AudioMixer volume works on a logarithmic scale (-80dB to 20dB)
-        float dB = Mathf.Log10(value) * 20f;
-        audioMixer.SetFloat("MusicVol", dB);
+        float dB = Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f;
+        if (audioMixer != null)
+        {
+            audioMixer.SetFloat("MusicVol", dB);
+        }
 
-        // Save setting
         PlayerPrefs.SetFloat(MUSIC_KEY, value);
         PlayerPrefs.Save();
     }
 
     public void SetSFXVolume(float value)
     {
-        float dB = Mathf.Log10(value) * 20f;
-        audioMixer.SetFloat("SFXVol", dB);
+        float dB = Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f;
+        if (audioMixer != null)
+        {
+            audioMixer.SetFloat("SFXVol", dB);
+        }
 
-        // Save setting
         PlayerPrefs.SetFloat(SFX_KEY, value);
         PlayerPrefs.Save();
     }
@@ -77,5 +128,22 @@ public class SettingsManager : MonoBehaviour
         {
             controlGuidePanel.SetActive(isOn);
         }
+
+        PlayerPrefs.SetInt(CONTROL_GUIDE_KEY, isOn ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public void ToggleSettingsMenu(bool isSettingsOpen)
+    {
+        // Settings turns ON when isSettingsOpen is true
+        if (settingsPanel != null)
+            settingsPanel.SetActive(isSettingsOpen);
+
+        // HUD and Objective turn OFF when isSettingsOpen is true (inverted logic)
+        if (hudPanel != null)
+            hudPanel.SetActive(!isSettingsOpen);
+
+        if (objectivePanel != null)
+            objectivePanel.SetActive(!isSettingsOpen);
     }
 }
