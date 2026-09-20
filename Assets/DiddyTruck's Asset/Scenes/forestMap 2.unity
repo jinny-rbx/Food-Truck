@@ -354,11 +354,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fe857c104b4f31f4085fe1384746f5c3, type: 3}
---- !u!1 &707784166 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2828396339493122864, guid: fe857c104b4f31f4085fe1384746f5c3, type: 3}
-  m_PrefabInstance: {fileID: 707784165}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &877937599 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4416134806888247441, guid: abf9e72b32a88494eb2f9c8a52ec1bd1, type: 3}
@@ -1113,7 +1108,7 @@ PrefabInstance:
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: extractionZoneObject
       value: 
-      objectReference: {fileID: 707784166}
+      objectReference: {fileID: 1467495973}
     - target: {fileID: 5297529115010652935, guid: 987cf80a318fe0b498a68d9f65651446, type: 3}
       propertyPath: requiredMaterials.Array.size
       value: 6
