@@ -46,6 +46,7 @@ GameObject:
   - component: {fileID: 1471597672529457484}
   - component: {fileID: 3972512032676579861}
   - component: {fileID: 8985214000848303063}
+  - component: {fileID: 719085706011039527}
   m_Layer: 0
   m_Name: terung
   m_TagString: Untagged
@@ -136,6 +137,21 @@ MonoBehaviour:
   floatHeight: 0.5
   rotate: 0
   rotateSpeed: 50
+--- !u!114 &719085706011039527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1648475616863822032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19dd39c8bc0e3d049ae587ea11a6c8f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Coollectible
+  materialID: Healthy Food
+  amount: 1
+  points: 0
 --- !u!1 &1898939215986899616
 GameObject:
   m_ObjectHideFlags: 0

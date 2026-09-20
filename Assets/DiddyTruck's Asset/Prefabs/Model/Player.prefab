@@ -864,8 +864,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.47, y: 2, z: 5.18}
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Size: {x: 3.767674, y: 2, z: 5.18}
+  m_Center: {x: 0.07618583, y: 1, z: -0.0000000010318566}
 --- !u!1 &950607027828426174
 GameObject:
   m_ObjectHideFlags: 0
@@ -3323,15 +3323,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3917488801345891537}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.52672, y: 0.5, z: 21.64814}
+  m_LocalRotation: {x: -0, y: -0.07886331, z: -0, w: 0.9968854}
+  m_LocalPosition: {x: 41.09, y: 0.5, z: -108.95}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 526848166178558991}
   - {fileID: 6082730277043744899}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -9.046, z: 0}
 --- !u!143 &8370836607465417147
 CharacterController:
   m_ObjectHideFlags: 0
@@ -3926,8 +3926,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6082730277043744899}
   - component: {fileID: 4426284373313545750}
-  - component: {fileID: 2868534850431326701}
-  - component: {fileID: 5071719286351631581}
+  - component: {fileID: 6069216257261130486}
+  - component: {fileID: 2228264916435359376}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -3943,13 +3943,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4975755609224177250}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.080283955, y: 0.0017444295, z: 0.00014050347, w: 0.99677056}
-  m_LocalPosition: {x: 1.0726883, y: 4.12, z: -7.8338785}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.8426917, y: 3.9099998, z: -6.1838794}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6770636433181315817}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -0.15, y: 0, z: 0}
 --- !u!114 &4426284373313545750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3993,7 +3993,20 @@ MonoBehaviour:
       BarrelClipping: 0.25
       Anamorphism: 0
   BlendHint: 0
---- !u!114 &2868534850431326701
+--- !u!114 &6069216257261130486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4975755609224177250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4afa82ae3200b82408d605c3dbdd1e38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineRotateWithFollowTarget
+  Damping: 0
+--- !u!114 &2228264916435359376
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4011,36 +4024,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: 0.15, y: 4.12, z: -8.2}
---- !u!114 &5071719286351631581
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4975755609224177250}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f38bda98361e1de48a4ca2bd86ea3c17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineRotationComposer
-  Composition:
-    ScreenPosition: {x: 1.5, y: 0}
-    DeadZone:
-      Enabled: 0
-      Size: {x: 0.2, y: 0.2}
-    HardLimits:
-      Enabled: 0
-      Size: {x: 0.8, y: 0.8}
-      Offset: {x: 0, y: 0}
-  CenterOnActivate: 1
-  TargetOffset: {x: 55, y: 13.46, z: 9.4}
-  Damping: {x: 1, y: 1}
-  Lookahead:
-    Enabled: 0
-    Time: 0
-    Smoothing: 0
-    IgnoreY: 0
+  FollowOffset: {x: 0.92, y: 3.91, z: -6.55}
 --- !u!1 &5117903850361223808
 GameObject:
   m_ObjectHideFlags: 0

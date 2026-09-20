@@ -11,7 +11,7 @@ public class RandomSpawner : MonoBehaviour
     }
 
     [Header("Spawn Settings")]
-    [SerializeField] private SpawnGroup[] spawnGroups; // Replaces spawnPrefabs
+    [SerializeField] private SpawnGroup[] spawnGroups;
     [SerializeField] private int spawnAmount = 10;
 
     [Header("Spawn Area Boundaries")]
@@ -21,7 +21,11 @@ public class RandomSpawner : MonoBehaviour
     [Header("Ground Alignment (3D Map)")]
     [SerializeField] private bool alignToGround = true;
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private float raycastStartHeight = 50f;
+    [SerializeField] private float surfaceOffset = 0.5f; // Adjust if items clip slightly into mesh
+
+    [Header("Debug Visualizer")]
+    [SerializeField] private bool showDebugRays = true;
+    [SerializeField] private float debugRayDuration = 10f; // Seconds ray lines stay visible in Scene View
 
     private void Start()
     {
@@ -40,38 +44,61 @@ public class RandomSpawner : MonoBehaviour
     {
         if (spawnGroups == null || spawnGroups.Length == 0) return;
 
-        // 1. Randomly pick one of the spawn groups (e.g., badFood, Collect, Damage, goodFood)
+        // 1. Pick a random spawn group
         SpawnGroup selectedGroup = spawnGroups[UnityEngine.Random.Range(0, spawnGroups.Length)];
-
-        // Safety check: skip if the selected group has no variations assigned
         if (selectedGroup.variations == null || selectedGroup.variations.Length == 0) return;
 
-        // 2. Randomly pick one prefab variation from within that group
+        // 2. Pick a random prefab variation
         GameObject selectedPrefab = selectedGroup.variations[UnityEngine.Random.Range(0, selectedGroup.variations.Length)];
-
         if (selectedPrefab == null) return;
 
-        // 3. Generate a random point within the defined area box
+        // 3. Generate random XZ coordinates within the spawn box bounds
         Vector3 origin = transform.position + centerOffset;
-        Vector3 randomPoint = origin + new Vector3(
-            UnityEngine.Random.Range(-spawnAreaSize.x / 2f, spawnAreaSize.x / 2f),
-            UnityEngine.Random.Range(-spawnAreaSize.y / 2f, spawnAreaSize.y / 2f),
-            UnityEngine.Random.Range(-spawnAreaSize.z / 2f, spawnAreaSize.z / 2f)
-        );
+        float randomX = UnityEngine.Random.Range(-spawnAreaSize.x / 2f, spawnAreaSize.x / 2f);
+        float randomZ = UnityEngine.Random.Range(-spawnAreaSize.z / 2f, spawnAreaSize.z / 2f);
 
-        // 4. Snap object to Terrain/Ground using Raycast
+        Vector3 spawnPosition = origin + new Vector3(randomX, 0f, randomZ);
+
+        // 4. Snap object strictly to top of Terrain/Ground surface
         if (alignToGround)
         {
-            Vector3 rayOrigin = new Vector3(randomPoint.x, origin.y + raycastStartHeight, randomPoint.z);
-            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, raycastStartHeight * 2f, groundLayer))
+            // Start ray high above the sky to ensure raycast fires from ABOVE the highest terrain peak
+            float skyHeight = 1000f;
+            Vector3 rayOrigin = new Vector3(spawnPosition.x, skyHeight, spawnPosition.z);
+
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, skyHeight * 2f, groundLayer, QueryTriggerInteraction.Ignore))
             {
-                randomPoint.y = hit.point.y;
+                // Only snap if hitting a top-facing surface (hit normal pointing upwards)
+                if (hit.normal.y > 0.3f)
+                {
+                    spawnPosition.y = hit.point.y + surfaceOffset;
+
+                    if (showDebugRays)
+                    {
+                        Debug.DrawRay(rayOrigin, Vector3.down * hit.distance, Color.green, debugRayDuration);
+                        Debug.DrawLine(hit.point, hit.point + Vector3.up * 2f, Color.cyan, debugRayDuration);
+                    }
+                }
+                else
+                {
+                    // Hit an underside face or vertical cliff - skip spawning
+                    return;
+                }
+            }
+            else
+            {
+                // Raycast missed the terrain layer - draw red ray and skip
+                if (showDebugRays)
+                {
+                    Debug.DrawRay(rayOrigin, Vector3.down * (skyHeight * 2f), Color.red, debugRayDuration);
+                }
+                return;
             }
         }
 
-        // 5. Instantiate with random rotation
+        // 5. Instantiate object with random Y rotation
         Quaternion randomRotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
-        Instantiate(selectedPrefab, randomPoint, randomRotation, transform);
+        Instantiate(selectedPrefab, spawnPosition, randomRotation, transform);
     }
 
     private void OnDrawGizmosSelected()
